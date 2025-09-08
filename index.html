@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Data Digital BPPMDDT Ambon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-pV8q3E7v2O/5/..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Tambahkan di <head> -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- HEADER -->
+<header class="bg-blue-900 text-white shadow-lg fixed top-0 left-0 w-full z-50">
+  <div class="container mx-auto flex justify-between items-center p-4">
+    <!-- Logo + Nama jadi link ke beranda -->
+    <a href="#beranda" aria-label="Kembali ke Beranda" class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white">
+        <img src="img/logo.jpeg" alt="Logo BPPMDTT" class="w-full h-full object-cover">
+      </div>
+      <h1 class="text-lg md:text-xl font-extrabold tracking-wide">
+        BPPMDDT Ambon
+      </h1>
+    </a>
+
+    <!-- Hamburger (tampil di mobile, hilang di desktop) -->
+    <button id="menu-btn" aria-label="Toggle menu" class="md:hidden text-white text-3xl focus:outline-none transition">
+      ☰
+    </button>
+
+    <!-- Menu Navigasi -->
+    <nav id="menu" class="hidden md:block absolute md:static top-16 left-0 w-full md:w-auto bg-blue-900 md:bg-transparent">
+      <ul class="flex flex-col md:flex-row gap-4 p-4 md:p-0 text-sm md:text-base">
+        <li><a href="#alumni" class="hover:underline text-sm transition duration-300">Alumni Pelatihan</a></li>
+        <li><a href="#lokus" class="hover:underline text-sm transition duration-300">Lokus Pelatihan</a></li>
+        <li><a href="#survey" class="hover:underline text-sm transition duration-300">Publikasi Survey</a></li>
+        <li><a href="#galeri" class="hover:underline text-sm transition duration-300">Galeri</a></li>
+        <li><a href="#profil" class="hover:underline text-sm transition duration-300">Profil</a></li>
+        <li><a href="#data" class="hover:underline text-sm transition duration-300">Database</a></li>
+        <li><a href="#program" class="hover:underline text-sm transition duration-300">Program</a></li>
+        <li><a href="#kontak" class="hover:underline text-sm transition duration-300">Kontak</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- Spacer supaya konten nggak ketutup header -->
+<div class="h-20"></div>
+
+<!-- JS Hamburger & Smooth Scroll -->
+<script>
+  const menuBtn = document.getElementById('menu-btn');
+  const menu = document.getElementById('menu');
+
+  // Toggle buka/tutup menu & animasi hamburger
+  menuBtn.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+    menuBtn.textContent = menu.classList.contains('hidden') ? '☰' : '×';
+  });
+
+  // Auto close menu setelah klik link (hanya mobile)
+  const menuLinks = menu.querySelectorAll('a');
+  menuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 768) {
+        menu.classList.add('hidden');
+        menuBtn.textContent = '☰';
+      }
+    });
+  });
+
+  // Smooth scroll fallback untuk browser yang tidak support CSS scroll-behavior
+  menuLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const targetId = link.getAttribute('href').substring(1);
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+
+
+
+
+
+<!-- BERANDA -->
+<section id="beranda" 
+         class="relative bg-cover bg-center text-white min-h-screen flex flex-col items-center justify-center text-center px-6"
+         style="background-image: url('img/background.png');">
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <!-- Konten -->
+  <div class="relative z-10 container mx-auto flex flex-col items-center">
+    
+    <!-- Judul -->
+    <h2 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
+      Selamat Datang di <span class="text-blue-400">Bank Data Digital</span>
+    </h2>
+
+    <!-- Subjudul -->
+    <p class="text-lg md:text-xl mb-10 max-w-2xl text-gray-200">
+      Balai Pelatihan dan Pemberdayaan Masyarakat Desa dan Daerah Tertinggal Ambon 
+      menyediakan pusat informasi digital, pendaftaran program, dan layanan masyarakat.
+    </p>
+
+    <!-- Tombol Cari Dokumen (Utama) -->
+    <a href="#data" 
+       class="bg-blue-600 hover:bg-blue-700 px-7 py-3 rounded-full text-white font-semibold shadow-lg transition mb-10">
+       🔍 Cari Dokumen
+    </a>
+
+    <!-- Total Dokumen -->
+    <div class="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full shadow-lg inline-block">
+      <p class="text-xs text-gray-200">Total Dokumen</p>
+      <p id="totalDocs" class="text-xl font-bold text-blue-300 counter">0</p>
+    </div>
+  </div>
+</section>
+
+<!-- PapaParse.js -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+const csvURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=1383698020&single=true&output=csv';
+
+// Hitung total dokumen
+Papa.parse(csvURL, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    const total = results.data.length;
+    animateCounter(document.getElementById("totalDocs"), total);
+  }
+});
+
+// Animasi counter naik
+function animateCounter(el, target) {
+  let current = 0;
+  const increment = Math.ceil(target / 50);
+  const step = () => {
+    current += increment;
+    if (current < target) {
+      el.textContent = current.toLocaleString();
+      requestAnimationFrame(step);
+    } else {
+      el.textContent = target.toLocaleString();
+    }
+  };
+  step();
+}
+
+// Smooth scroll untuk tombol Cari Dokumen
+document.querySelectorAll('a[href^="#data"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+});
+</script>
+
+
+
+
+
+
+
+<!-- Database Alumni & Pendampingan -->
+<section id="alumni" class="py-16 bg-gradient-to-b from-blue-100 via-blue-50 to-gray-50">
+  <div class="container mx-auto text-center">
+
+    <!-- Judul -->
+    <h3 class="text-2xl font-semibold text-gray-800 mb-10">
+      Database Alumni & Pendampingan
+    </h3>
+
+    <!-- Grid 2 kolom -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Alumni -->
+      <div class="flex flex-col items-center">
+        <h4 class="text-xl font-bold text-gray-700 mb-4">Alumni Pelatihan</h4>
+        <div class="bg-white rounded-lg shadow-md p-4 flex justify-center hover:shadow-lg transition-shadow duration-300 w-full">
+          <div class="w-full aspect-[16/9]">
+            <iframe
+              src="https://lookerstudio.google.com/embed/reporting/e9c9f6e8-1130-4543-907d-2aaab9bd7ae3/page/gOrYE"
+              class="w-full h-full rounded-lg"
+              frameborder="0"
+              allowfullscreen
+              sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox">
+            </iframe>
+          </div>
+        </div>
+        <!-- Tombol Unduh -->
+        <a href="https://docs.google.com/spreadsheets/d/1jRmx-LxSu5QBjHHX64vLhHRyte33v4TTbe9_6B87ewk/edit?usp=sharing" 
+           target="_blank" 
+           class="mt-4 inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-full shadow transition">
+          📊 Unduh Excel
+        </a>
+      </div>
+
+      <!-- Pendampingan -->
+      <div class="flex flex-col items-center">
+        <h4 class="text-xl font-bold text-gray-700 mb-4">Alumni Pendampingan</h4>
+        <div class="bg-white rounded-lg shadow-md p-4 flex justify-center hover:shadow-lg transition-shadow duration-300 w-full">
+          <div class="w-full aspect-[16/9]">
+            <iframe
+              src="https://lookerstudio.google.com/embed/reporting/GANTI_DENGAN_LINK_PENDAMPINGAN"
+              class="w-full h-full rounded-lg"
+              frameborder="0"
+              allowfullscreen
+              sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox">
+            </iframe>
+          </div>
+        </div>
+        <!-- Tombol Unduh -->
+        <a href="https://docs.google.com/spreadsheets/d/ID_PENDAMPINGAN/edit?usp=sharing" 
+           target="_blank" 
+           class="mt-4 inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-full shadow transition">
+          📊 Unduh Excel
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<!-- Lokus Pelatihan & Pendampingan -->
+<section id="lokus" class="py-16 bg-gradient-to-b from-gray-50 via-green-100 to-green-200">
+  <div class="container mx-auto text-center mb-10">
+    <h2 class="text-3xl font-bold text-gray-800 mb-3">Lokus Pelatihan & Pendampingan</h2>
+    <p class="text-gray-600 max-w-2xl mx-auto">
+      Peta berikut menunjukkan lokasi kegiatan yang telah dilaksanakan.  
+      Gunakan tombol <strong>layer</strong> di kiri atas peta untuk menampilkan detail per tahun atau jenis kegiatan.
+    </p>
+  </div>
+
+  <!-- Lokus Pelatihan -->
+  <div class="container mx-auto mb-12">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">📍 Lokus Pelatihan</h3>
+    <div class="bg-white rounded-xl shadow-md p-3 flex justify-center hover:shadow-lg transition-shadow duration-300">
+      <div class="w-full max-w-5xl aspect-video rounded-lg overflow-hidden">
+        <iframe
+          src="https://www.google.com/maps/d/u/5/embed?mid=1CsbnHKJPMkr5_k6WN5i3RZRAfr-sF1A&ehbc=2E312F"
+          class="w-full h-full"
+          frameborder="0"
+          allowfullscreen
+          sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox">
+        </iframe>
+      </div>
+    </div>
+
+    <!-- Legend Pelatihan -->
+    <div class="mt-6 flex flex-wrap justify-center gap-4 md:gap-6">
+      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+        <span class="w-5 h-5 bg-gray-400 rounded-full"></span>
+        <span class="text-gray-700 text-sm md:text-base">Perencanaan Pembangunan Partisipatif</span>
+      </div>
+      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+        <span class="w-5 h-5 bg-green-500 rounded-full"></span>
+        <span class="text-gray-700 text-sm md:text-base">Pengelolaan BUMDes</span>
+      </div>
+      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+        <span class="w-5 h-5 bg-red-500 rounded-full"></span>
+        <span class="text-gray-700 text-sm md:text-base">Desa Wisata</span>
+      </div>
+      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+        <span class="w-5 h-5 bg-blue-500 rounded-full"></span>
+        <span class="text-gray-700 text-sm md:text-base">Kemaritiman</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lokus Pendampingan -->
+  <div class="container mx-auto mb-12">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">🤝 Lokus Pendampingan</h3>
+    <div class="bg-white rounded-xl shadow-md p-3 flex justify-center hover:shadow-lg transition-shadow duration-300">
+      <div class="w-full max-w-5xl aspect-video rounded-lg overflow-hidden">
+        <iframe
+          src="https://www.google.com/maps/d/u/5/embed?mid=1PuVFAlHLnOWP5T73FmTys6dVbBvUuYE&ehbc=2E312F"
+          class="w-full h-full"
+          frameborder="0"
+          allowfullscreen
+          sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox">
+        </iframe>
+      </div>
+    </div>
+
+    <!-- Legend Pendampingan -->
+    <div class="mt-6 flex flex-wrap justify-center gap-4 md:gap-6">
+      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+        <span class="w-5 h-5 bg-green-300 rounded-full"></span>
+        <span class="text-gray-700 text-sm md:text-base">Pendampingan 2024</span>
+      </div>
+      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+        <span class="w-5 h-5 bg-blue-500 rounded-full"></span>
+        <span class="text-gray-700 text-sm md:text-base">Pendampingan 2025</span>
+      </div>
+    </div>
+  </div>
+
+<!-- Download Data -->
+<div class="container mx-auto text-center mt-12 flex flex-wrap justify-center gap-4">
+  <a href="https://docs.google.com/spreadsheets/d/1ccUujIVhGjVFLG-bsOLcKuYOZasD1NuyoM5Gt8wVfYQ/edit?usp=sharing" 
+     target="_blank" 
+     class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition">
+    📊 Unduh Lokus Pelatihan (Excel)
+  </a>
+  <a href="https://docs.google.com/spreadsheets/d/1vss4OWuarw4aMj_T1AaZph50zLshmeeW705WaiS28RQ/edit?usp=sharing" 
+     target="_blank" 
+     class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition">
+    📊 Unduh Lokus Pendampingan (Excel)
+  </a>
+</div>
+
+
+<script>
+  const btn = document.getElementById("downloadBtn");
+  const menu = document.getElementById("downloadMenu");
+  const iframes = document.querySelectorAll("#lokus iframe");
+
+  function disableIframeClicks(disable) {
+    iframes.forEach(iframe => {
+      iframe.style.pointerEvents = disable ? "none" : "auto";
+    });
+  }
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menu.classList.toggle("hidden");
+    disableIframeClicks(!menu.classList.contains("hidden"));
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.add("hidden");
+      disableIframeClicks(false);
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- GALERI -->
+<section id="galeri" class="py-16 bg-gradient-to-t from-gray-100 via-green-50 to-gray-100">
+  <div class="container mx-auto">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Galeri Dokumentasi</h2>
+    <div id="galeriGrid" class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4"></div>
+  </div>
+</section>
+
+<!-- PapaParse -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<script>
+  const galeriCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=322564724&single=true&output=csv";
+  const galeriGrid = document.getElementById("galeriGrid");
+
+  Papa.parse(galeriCSV, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      results.data.forEach(row => {
+        if (!row["Nama Kegiatan"]) return;
+
+        // Foto thumbnail (ID Google Drive)
+        let thumbUrl = "img/avatar-default.jpg";
+        if (row["Foto"] && row["Foto"].trim() !== "") {
+          thumbUrl = `https://lh3.googleusercontent.com/d/${row["Foto"].trim()}`;
+        }
+
+        // Link ke folder/drive dokumentasi
+        const driveUrl = row["Drive"] || "#";
+
+        const item = document.createElement("a");
+        item.href = driveUrl;
+        item.target = "_blank";
+        item.className = "block break-inside-avoid group";
+
+        item.innerHTML = `
+          <div class="overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition">
+            <img src="${thumbUrl}" alt="${row["Nama Kegiatan"]}"
+                 class="w-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <div class="p-3 bg-white">
+              <p class="font-semibold text-gray-800 text-sm">${row["Nama Kegiatan"]}</p>
+            </div>
+          </div>
+        `;
+        galeriGrid.appendChild(item);
+      });
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- PROFIL -->
+<section id="profil" class="py-16 bg-gradient-to-t from-blue-100 via-blue-50 to-gray-50">
+  <div class="container mx-auto text-center">
+
+    <!-- Logo Kemendes & Nurika -->
+    <div class="flex justify-center items-center gap-8 mb-8 flex-wrap">
+      <div class="w-28 h-28 rounded-full overflow-hidden shadow-md border hover:scale-105 hover:shadow-lg transition-transform">
+        <img src="img/logo.jpeg" alt="Logo Kemendes" class="w-full h-full object-cover" loading="lazy">
+      </div>
+      <div class="w-28 h-28 rounded-full shadow-md border overflow-hidden hover:scale-105 hover:shadow-lg transition-transform">
+        <img src="img/nurika.png" alt="Logo Nurika" class="w-full h-full object-cover" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Judul & Deskripsi -->
+    <h2 class="text-3xl font-bold text-gray-800 mb-4">Profil BPPMDT Ambon</h2>
+    <p class="text-gray-700 leading-relaxed max-w-3xl mx-auto mb-6">
+      Balai Pelatihan dan Pemberdayaan Masyarakat Desa dan Daerah Tertinggal Ambon 
+      adalah unit pelaksana teknis di lingkungan Kementerian Desa dan Pembangunan Daerah Tertinggal.
+    </p>
+
+    <p class="text-gray-700 leading-relaxed max-w-3xl mx-auto mb-12">
+      Berdasarkan Peraturan Menteri Desa dan Pembangunan Daerah Tertinggal Nomor 5 Tahun 2025, 
+      balai ini bertugas melaksanakan pelatihan sumber daya manusia dan pemberdayaan masyarakat desa.
+    </p>
+
+    <!-- Struktur Organisasi -->
+    <h3 class="text-3xl font-bold text-gray-800 mb-6">Sumber Daya manusia</h3>
+
+    <!-- Slider -->
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper" id="pegawaiList"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- Tombol Buka Modal -->
+    <button id="openPasswordModal"
+      class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full transition mt-6">
+      Lihat Daftar Nominatif Pegawai
+    </button>
+
+  </div>
+</section>
+
+<!-- Modal Password -->
+<div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-xl p-6 w-80 text-center">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">🔒 Akses Terbatas</h3>
+    <p class="text-sm text-gray-600 mb-3">Masukkan password untuk membuka daftar pegawai.</p>
+    <input type="password" id="passwordInput"
+           class="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+           placeholder="Password">
+    <div class="flex justify-end gap-2">
+      <button id="cancelModal" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm">Batal</button>
+      <button id="submitPassword" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">Masuk</button>
+    </div>
+    <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden">❌ Password salah</p>
+  </div>
+</div>
+
+<!-- Swiper + PapaParse -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+  .mySwiper .swiper-slide {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .mySwiper .swiper-pagination { margin-top: 16px; position: static; }
+  .mySwiper .swiper-pagination-bullet { background: #93c5fd; opacity: 0.6; }
+  .mySwiper .swiper-pagination-bullet-active { background: #2563eb; opacity: 1; }
+  .pegawai-foto { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .pegawai-foto:hover { transform: scale(1.1); box-shadow: 0px 6px 20px rgba(37, 99, 235, 0.25); }
+</style>
+
+<script>
+  // Load Data Pegawai
+  const pegawaiCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTn299S4E7rlrL-UcnekUo9vNnGT4Dlp0GgWVbH6bH2UvEZ3ZJTB8_kWLzmcNswdQ/pub?gid=718410139&single=true&output=csv";
+  const pegawaiList = document.getElementById("pegawaiList");
+
+  Papa.parse(pegawaiCSV, {
+    download: true, header: true, skipEmptyLines: true,
+    complete: function(results){
+      results.data.forEach(row => {
+        if(!row["Nama"]) return;
+        let imgTag = row["Foto"] 
+          ? `<img src="https://lh3.googleusercontent.com/d/${row["Foto"]}" alt="${row["Nama"]}"
+                 class="w-20 h-20 rounded-full object-cover mb-2 pegawai-foto"
+                 onerror="this.onerror=null; this.src='img/avatar-default.jpg';">`
+          : `<img src="img/avatar-default.jpg" class="w-20 h-20 rounded-full object-cover mb-2 pegawai-foto">`;
+        const slide = document.createElement("div");
+        slide.className = "swiper-slide flex flex-col items-center p-2";
+        slide.innerHTML = `
+          ${imgTag}
+          <p class="font-semibold text-gray-800 text-xs">${row["Nama"]}</p>
+          <p class="text-gray-500 text-[9px]">${row["NIP"] || ""}</p>
+          <p class="text-gray-500 text-[9px] font-medium">${row["Jabatan"] || ""}</p>
+        `;
+        pegawaiList.appendChild(slide);
+      });
+      new Swiper(".mySwiper", {
+        slidesPerView: 2, spaceBetween: 12, loop: true, autoHeight: true,
+        pagination: { el: ".swiper-pagination", clickable: true },
+        navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+        breakpoints: { 640:{slidesPerView:3}, 768:{slidesPerView:4}, 1024:{slidesPerView:5}, 1280:{slidesPerView:6} }
+      });
+    }
+  });
+
+  // Modal Password
+  const modal = document.getElementById("passwordModal");
+  const openBtn = document.getElementById("openPasswordModal");
+  const cancelBtn = document.getElementById("cancelModal");
+  const submitBtn = document.getElementById("submitPassword");
+  const input = document.getElementById("passwordInput");
+  const errorMsg = document.getElementById("errorMsg");
+
+  openBtn.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    input.value = "";
+    errorMsg.classList.add("hidden");
+    input.focus();
+  });
+  cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
+  submitBtn.addEventListener("click", () => {
+    if (input.value === "bppmdtamq") { // ganti password sesuai kebutuhan
+      window.open("https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=37406242&single=true&output=csv", "_blank");
+      modal.classList.add("hidden");
+    } else {
+      errorMsg.classList.remove("hidden");
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- DATABASE INTERNAL (Versi Lengkap) -->
+<section id="data" class="py-16 bg-gradient-to-t from-gray-50 via-blue-50 to-blue-100">
+  <div class="container mx-auto text-center mb-8 px-4">
+    <h2 class="text-3xl font-bold text-gray-800">Database Internal</h2>
+    <p class="text-gray-600 mt-3 max-w-2xl mx-auto">
+      Akses database internal resmi BPPMDT Ambon. Gunakan pencarian, filter, dan pagination untuk menjelajah semua file.
+    </p>
+  </div>
+
+  <div class="container mx-auto max-w-4xl bg-white/90 backdrop-blur rounded-2xl shadow p-6 md:p-8">
+
+    <!-- Controls: Search + Filters -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-end mb-5">
+      <!-- Search -->
+      <div class="md:col-span-6">
+        <label for="dbSearchInput" class="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">🔍</span>
+          <input id="dbSearchInput" type="text" placeholder="Ketik nama file atau kata kunci…"
+                 class="w-full pl-10 pr-3 py-2 rounded-lg border focus:ring focus:ring-blue-200" />
+        </div>
+      </div>
+
+      <!-- Kategori -->
+      <div class="md:col-span-3">
+        <label for="filterKategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+        <select id="filterKategori" class="w-full px-3 py-2 rounded-lg border focus:ring focus:ring-blue-200">
+          <option value="">Semua</option>
+        </select>
+      </div>
+
+      <!-- Tim Kerja -->
+      <div class="md:col-span-3">
+        <label for="filterTim" class="block text-sm font-medium text-gray-700 mb-1">Tim Kerja</label>
+        <select id="filterTim" class="w-full px-3 py-2 rounded-lg border focus:ring focus:ring-blue-200">
+          <option value="">Semua</option>
+        </select>
+      </div>
+
+      <!-- Sort -->
+      <div class="md:col-span-3">
+        <label for="sortSelect" class="block text-sm font-medium text-gray-700 mb-1">Urutkan</label>
+        <select id="sortSelect" class="w-full px-3 py-2 rounded-lg border focus:ring focus:ring-blue-200">
+          <option value="az">Nama A–Z</option>
+          <option value="za">Nama Z–A</option>
+        </select>
+      </div>
+
+      <!-- Info Count -->
+      <div class="md:col-span-9 text-sm text-gray-600 md:text-right">
+        <span id="resultInfo" class="inline-block mt-2 md:mt-0">Menampilkan 0–0 dari 0 file</span>
+      </div>
+    </div>
+
+    <!-- List / Loading / Empty -->
+    <div id="loadingState" class="flex items-center justify-center py-10">
+      <div class="animate-pulse text-gray-500">Memuat data…</div>
+    </div>
+
+    <ul id="databaseList" class="hidden text-left space-y-3"></ul>
+
+    <div id="emptyState" class="hidden text-center py-10">
+      <div class="text-4xl mb-2">🗂️</div>
+      <p class="text-gray-700 font-medium">Data tidak ditemukan</p>
+      <p class="text-gray-500 text-sm">Coba ubah kata kunci atau filter ya.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="mt-6 flex flex-wrap justify-center gap-2"></div>
+  </div>
+</section>
+
+<!-- Modal Password -->
+<div id="passwordModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-50">
+  <div class="bg-white p-6 rounded-2xl shadow-lg w-[22rem] text-center">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800">🔒 Masukkan Password</h3>
+    <input type="password" id="docPassword" placeholder="Password"
+           class="w-full border rounded-lg px-3 py-2 mb-2 focus:ring focus:ring-blue-200" />
+    <p id="passwordError" class="text-sm text-red-500 mb-3 hidden">Password salah, coba lagi ya 💡</p>
+    <div class="flex justify-between gap-2">
+      <button type="button" onclick="closeModal()"
+              class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Batal</button>
+      <button type="button" onclick="checkPassword()"
+              class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- PapaParse -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<script>
+/* ================== CONFIG ================== */
+const databaseCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=1383698020&single=true&output=csv';
+const ITEMS_PER_PAGE = 10;
+const correctPassword = 'bppmdt2025'; // ganti sewaktu-waktu
+
+// Harap header di Sheet: Nama File, Link, Kategori, Tim Kerja, Keterangan, Tipe, Protected
+/* ============================================ */
+
+const els = {
+  list: document.getElementById('databaseList'),
+  pagination: document.getElementById('pagination'),
+  input: document.getElementById('dbSearchInput'),
+  filterKategori: document.getElementById('filterKategori'),
+  filterTim: document.getElementById('filterTim'),
+  sort: document.getElementById('sortSelect'),
+  resultInfo: document.getElementById('resultInfo'),
+  loading: document.getElementById('loadingState'),
+  empty: document.getElementById('emptyState'),
+  modal: document.getElementById('passwordModal'),
+  docPassword: document.getElementById('docPassword'),
+  passwordError: document.getElementById('passwordError'),
+};
+
+let allData = [];
+let filteredData = [];
+let currentPage = 1;
+let currentProtectedLink = '';
+
+/* =============== UTILITIES =============== */
+function escapeHTML(str='') {
+  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function highlight(text, query) {
+  if (!query) return escapeHTML(text || '');
+  const safe = escapeHTML(text || '');
+  const pattern = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+  return safe.replace(pattern, '<mark class="bg-yellow-200">$1</mark>');
+}
+
+function fileTypeIcon(type='') {
+  const t = (type || '').toLowerCase();
+  if (t.includes('pdf')) return '📕';
+  if (t.includes('xls') || t.includes('spreadsheet') || t.includes('excel')) return '📗';
+  if (t.includes('doc')) return '📘';
+  if (t.includes('ppt')) return '📙';
+  if (t.includes('zip') || t.includes('rar')) return '🗜️';
+  if (t.includes('csv')) return '🧾';
+  if (t.includes('img') || t.includes('jpg') || t.includes('png')) return '🖼️';
+  return '📄';
+}
+
+function updateResultInfo(total, page, perPage) {
+  const start = total === 0 ? 0 : (page - 1) * perPage + 1;
+  const end = Math.min(page * perPage, total);
+  els.resultInfo.textContent = `Menampilkan ${start}–${end} dari ${total} file`;
+}
+
+/* ============== MODAL PASSWORD ============== */
+function openModal(link) {
+  currentProtectedLink = link;
+  els.modal.classList.remove('hidden');
+  els.modal.classList.add('flex');
+  els.docPassword.value = '';
+  els.passwordError.classList.add('hidden');
+  setTimeout(() => els.docPassword.focus(), 50);
+}
+function closeModal() {
+  els.modal.classList.add('hidden');
+  els.modal.classList.remove('flex');
+  els.passwordError.classList.add('hidden');
+  els.docPassword.value = '';
+}
+function checkPassword() {
+  if (els.docPassword.value === correctPassword) {
+    window.open(currentProtectedLink, '_blank');
+    closeModal();
+  } else {
+    els.passwordError.classList.remove('hidden');
+  }
+}
+// Close modal on ESC and backdrop click
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !els.modal.classList.contains('hidden')) closeModal();
+});
+els.modal.addEventListener('click', (e) => {
+  if (e.target === els.modal) closeModal();
+});
+
+/* ============== RENDER CORE ============== */
+function renderPage(page) {
+  const start = (page - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  const pageData = filteredData.slice(start, end);
+
+  els.list.innerHTML = '';
+  pageData.forEach(item => {
+    if (!item['Nama File'] || !item['Link']) return;
+
+    const nama = item['Nama File'] || '';
+    const kategori = item['Kategori'] || '';
+    const tim = item['Tim Kerja'] || '';
+    const ket = item['Keterangan'] || '';
+    const tipe = item['Tipe'] || '';
+    const isProtected = (item['Protected'] || '').toString().toLowerCase() === 'ya';
+    const link = item['Link'];
+
+    const li = document.createElement('li');
+    li.className = "p-4 rounded-xl border bg-white hover:shadow-sm transition";
+
+    li.innerHTML = `
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-lg font-semibold text-gray-800 leading-tight">
+              ${highlight(nama, (els.input.value || '').trim())}
+            </span>
+            ${kategori ? `<span class="px-2 py-0.5 text-xs rounded-full bg-pink-100 text-pink-700">${escapeHTML(kategori)}</span>` : ''}
+            ${tim ? `<span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">${escapeHTML(tim)}</span>` : ''}
+            ${tipe ? `<span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700">${fileTypeIcon(tipe)} ${escapeHTML(tipe)}</span>` : ''}
+          </div>
+          ${ket ? `<p class="text-sm text-gray-600 mt-1 line-clamp-2">${highlight(ket, (els.input.value || '').trim())}</p>` : ''}
+        </div>
+
+        <div class="shrink-0">
+          ${
+            isProtected
+            ? `<button type="button" class="px-3 py-1.5 rounded-full bg-red-400 hover:bg-red-500 text-white text-sm font-medium">
+                 🔒 Lihat Dokumen
+               </button>`
+            : `<a href="${escapeHTML(link)}" target="_blank" rel="noopener"
+                 class="inline-block px-3 py-1.5 rounded-full bg-green-400 hover:bg-green-500 text-white text-sm font-medium">
+                 📂 Lihat Dokumen
+               </a>`
+          }
+        </div>
+      </div>
+    `;
+
+    // Attach handler if protected
+    if (isProtected) {
+      li.querySelector('button').addEventListener('click', () => openModal(link));
+    }
+
+    els.list.appendChild(li);
+  });
+
+  updateResultInfo(filteredData.length, currentPage, ITEMS_PER_PAGE);
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
+  els.pagination.innerHTML = '';
+
+  const btnBase = "px-3 py-1 rounded border";
+  const addBtn = (label, disabled, onClick, extra='') => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.disabled = disabled;
+    b.className = `${btnBase} ${disabled ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-100'} ${extra}`;
+    if (!disabled) b.addEventListener('click', onClick);
+    els.pagination.appendChild(b);
+  };
+
+  addBtn('Prev', currentPage === 1, () => { currentPage--; renderPage(currentPage); renderPagination(); });
+
+  for (let i = 1; i <= totalPages; i++) {
+    const extra = i === currentPage ? 'bg-blue-600 text-white border-blue-600' : '';
+    addBtn(String(i), false, () => { currentPage = i; renderPage(currentPage); renderPagination(); }, extra);
+  }
+
+  addBtn('Next', currentPage === totalPages, () => { currentPage++; renderPage(currentPage); renderPagination(); });
+}
+
+function applyFiltersAndSort(query='') {
+  const q = (query || '').toLowerCase().trim();
+  const fKategori = els.filterKategori.value;
+  const fTim = els.filterTim.value;
+  const sortMode = els.sort.value;
+
+  // filter
+  filteredData = allData.filter(row => {
+    const nama = (row['Nama File'] || '').toLowerCase();
+    const ket  = (row['Keterangan'] || '').toLowerCase();
+    const kat  = (row['Kategori'] || '');
+    const tim  = (row['Tim Kerja'] || '');
+    const matchQuery = q ? (nama.includes(q) || ket.includes(q)) : true;
+    const matchKat = fKategori ? (kat === fKategori) : true;
+    const matchTim = fTim ? (tim === fTim) : true;
+    return matchQuery && matchKat && matchTim;
+  });
+
+  // sort
+  filteredData.sort((a, b) => {
+    const A = (a['Nama File'] || '').toLowerCase();
+    const B = (b['Nama File'] || '').toLowerCase();
+    if (sortMode === 'za') return A < B ? 1 : (A > B ? -1 : 0);
+    return A < B ? -1 : (A > B ? 1 : 0); // default A–Z
+  });
+
+  // state switching
+  els.loading.classList.add('hidden');
+  if (filteredData.length === 0) {
+    els.list.classList.add('hidden');
+    els.empty.classList.remove('hidden');
+    updateResultInfo(0, 1, ITEMS_PER_PAGE);
+    els.pagination.innerHTML = '';
+    return;
+  } else {
+    els.empty.classList.add('hidden');
+    els.list.classList.remove('hidden');
+  }
+
+  currentPage = 1;
+  renderPage(currentPage);
+  renderPagination();
+}
+
+/* ============== FETCH & INIT ============== */
+Papa.parse(databaseCSV, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    // keep rows with required fields
+    allData = results.data.filter(row => row['Nama File'] && row['Link']);
+
+    // Build distinct filters
+    const setKategori = new Set(), setTim = new Set();
+    allData.forEach(r => {
+      if (r['Kategori']) setKategori.add(r['Kategori']);
+      if (r['Tim Kerja']) setTim.add(r['Tim Kerja']);
+    });
+
+    // Populate dropdowns
+    [...setKategori].sort().forEach(k => {
+      const o = document.createElement('option'); o.value = k; o.textContent = k;
+      els.filterKategori.appendChild(o);
+    });
+    [...setTim].sort().forEach(t => {
+      const o = document.createElement('option'); o.value = t; o.textContent = t;
+      els.filterTim.appendChild(o);
+    });
+
+    // Initial query from URL/localStorage (optional)
+    let query = '';
+    const stored = localStorage.getItem('dbSearchQuery');
+    if (stored) { query = stored; localStorage.removeItem('dbSearchQuery'); }
+    else {
+      const urlParams = new URLSearchParams(window.location.search);
+      query = urlParams.get('search') || '';
+    }
+    els.input.value = query;
+
+    applyFiltersAndSort(query);
+  },
+  error: function(err) {
+    els.loading.innerHTML = '<span class="text-red-500">Gagal memuat data.</span>';
+    console.error(err);
+  }
+});
+
+/* ============== EVENT LISTENERS ============== */
+els.input.addEventListener('input', () => applyFiltersAndSort(els.input.value));
+els.filterKategori.addEventListener('change', () => applyFiltersAndSort(els.input.value));
+els.filterTim.addEventListener('change', () => applyFiltersAndSort(els.input.value));
+els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
+</script>
+
+
+
+
+
+<!-- PUBLIKASI SURVEY -->
+<section id="survey" class="py-16 bg-gradient-to-b from-green-50 via-gray-50 to-gray-100">
+  <div class="container mx-auto text-center mb-12">
+    <h2 class="text-3xl font-bold text-gray-800">Publikasi Survey</h2>
+    <p class="text-gray-700 mt-3 max-w-2xl mx-auto">
+      Hasil survey Persepsi Anti Korupsi & Kepuasan Pelayanan.
+    </p>
+  </div>
+
+  <div class="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Survey Anti Korupsi -->
+    <div class="bg-white rounded-xl shadow-md p-6"
+         x-data="{ mode: 'chart', data: [] }"
+         x-init="
+           Papa.parse('LINK_CSV_SPAK', {
+             download: true, header: true, skipEmptyLines: true,
+             complete: res => { data = res.data }
+           })
+         ">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Survey Persepsi Anti Korupsi</h3>
+
+      <!-- Toggle -->
+      <div class="flex justify-center gap-2 mb-4">
+        <button @click='mode="chart"'
+                :class="mode==='chart' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
+          📊 Grafik
+        </button>
+        <button @click='mode="table"'
+                :class="mode==='table' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
+          📋 Tabel
+        </button>
+      </div>
+
+      <!-- Grafik -->
+      <div x-show="mode==='chart'" x-transition>
+        <iframe src="LINK_CHART_SPAK"
+                class="w-full h-64 rounded-lg shadow border"></iframe>
+      </div>
+
+      <!-- Tabel -->
+      <div x-show="mode==='table'" x-transition class="overflow-x-auto">
+        <table class="w-full border text-sm mt-2">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="border p-2">Tahun</th>
+              <th class="border p-2">Triwulan</th>
+              <th class="border p-2">Nilai</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in data" :key="row.Tahun+row.Triwulan">
+              <tr class="odd:bg-gray-50">
+                <td class="border p-2" x-text="row.Tahun"></td>
+                <td class="border p-2" x-text="row.Triwulan"></td>
+                <td class="border p-2" x-text="row.Nilai"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Survey Kepuasan Pelayanan -->
+    <div class="bg-white rounded-xl shadow-md p-6"
+         x-data="{ mode: 'chart', data: [] }"
+         x-init="
+           Papa.parse('LINK_CSV_SKP', {
+             download: true, header: true, skipEmptyLines: true,
+             complete: res => { data = res.data }
+           })
+         ">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Survey Kepuasan Pelayanan</h3>
+
+      <!-- Toggle -->
+      <div class="flex justify-center gap-2 mb-4">
+        <button @click='mode="chart"'
+                :class="mode==='chart' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
+          📊 Grafik
+        </button>
+        <button @click='mode="table"'
+                :class="mode==='table' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
+          📋 Tabel
+        </button>
+      </div>
+
+      <!-- Grafik -->
+      <div x-show="mode==='chart'" x-transition>
+        <iframe src="LINK_CHART_SKP"
+                class="w-full h-64 rounded-lg shadow border"></iframe>
+      </div>
+
+      <!-- Tabel -->
+      <div x-show="mode==='table'" x-transition class="overflow-x-auto">
+        <table class="w-full border text-sm mt-2">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="border p-2">Tahun</th>
+              <th class="border p-2">Triwulan</th>
+              <th class="border p-2">Nilai</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="row in data" :key="row.Tahun+row.Triwulan">
+              <tr class="odd:bg-gray-50">
+                <td class="border p-2" x-text="row.Tahun"></td>
+                <td class="border p-2" x-text="row.Triwulan"></td>
+                <td class="border p-2" x-text="row.Nilai"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Code -->
+  <div class="flex flex-col items-center mt-8">
+    <div class="bg-white p-4 rounded-xl shadow">
+      <img src="img/qrsurvey.jpeg" alt="QR Code Survey" class="w-32 h-32 mb-2">
+    </div>
+    <a href="https://bit.ly/SPKP-SPAK-AMQ" target="_blank"
+       class="text-blue-600 font-medium hover:underline mt-2">
+      Isi Survey Disini
+    </a>
+  </div>
+</section>
+
+<!-- Alpine.js & PapaParse -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- PROGRAM -->
+<section id="program" class="py-16 bg-gradient-to-b from-gray-50 to-gray-100">
+  <div class="container mx-auto text-center mb-12">
+    <h2 class="text-3xl font-bold text-gray-800">Program & Kegiatan</h2>
+    <p class="text-gray-600 mt-3 max-w-2xl mx-auto">
+      Informasi mengenai program pelatihan dan pendampingan yang dilaksanakan oleh BPPMDT Ambon.
+    </p>
+  </div>
+
+  <div class="container mx-auto mb-12 space-y-6">
+
+    <!-- ========== Accordion Template ========== -->
+    <!-- Penjajakan -->
+    <div x-data="{open:false}" class="border rounded-lg shadow bg-white">
+      <button @click="open = !open"
+        class="w-full flex justify-between items-center bg-pink-50 px-6 py-4 text-lg font-semibold rounded-t-lg text-gray-700">
+        <span>📑 Penjajakan</span>
+        <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor"
+          stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div x-show="open" x-transition class="p-4">
+        <!-- Table view (Desktop) -->
+        <div class="overflow-x-auto hidden md:block">
+          <table class="min-w-full border border-gray-200 rounded-lg">
+            <thead class="bg-gray-100 text-gray-700">
+              <tr>
+                <th class="px-4 py-2 text-center">No</th>
+                <th class="px-4 py-2 text-left">Nama Program</th>
+                <th class="px-4 py-2 text-center">Tanggal</th>
+                <th class="px-4 py-2 text-center">Kecamatan</th>
+                <th class="px-4 py-2 text-center">Kabupaten</th>
+                <th class="px-4 py-2 text-center">Dokumen</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              <tr class="odd:bg-gray-50 hover:bg-gray-100">
+                <td class="px-4 py-2 text-center">1</td>
+                <td class="px-4 py-2">Penjajakan Pelatihan Perencanaan Pembangunan Partisipatif Angkatan I</td>
+                <td class="px-4 py-2 text-center">16–19 Juli 2025</td>
+                <td class="px-4 py-2 text-center">Taniwel</td>
+                <td class="px-4 py-2 text-center">Seram Bagian Barat</td>
+                <td class="px-4 py-2 text-center">
+                  <a href="https://drive.google.com/file/d/1W3oziODjTw0i_my3EuFz_AB7ZsPR59qT/view?usp=sharing" target="_blank"
+                    class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200">Lihat</a>
+                </td>
+              </tr>
+              <tr class="odd:bg-gray-50 hover:bg-gray-100">
+                <td class="px-4 py-2 text-center">2</td>
+                <td class="px-4 py-2">Penjajakan Pelatihan Perencanaan Pembangunan Partisipatif Angkatan II</td>
+                <td class="px-4 py-2 text-center">16–19 Juli 2025</td>
+                <td class="px-4 py-2 text-center">Taniwel Timur</td>
+                <td class="px-4 py-2 text-center">Seram Bagian Barat</td>
+                <td class="px-4 py-2 text-center">
+                  <a href="https://drive.google.com/file/d/1FfF1xLamT9arTAr5jyb4hEvL1eqpUViB/view?usp=sharing" target="_blank"
+                    class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200">Lihat</a>
+                </td>
+              </tr>
+              <tr class="odd:bg-gray-50 hover:bg-gray-100">
+                <td class="px-4 py-2 text-center">3</td>
+                <td class="px-4 py-2">Penjajakan Pelatihan Pengelolaan Badan Usaha Milik Desa Angkatan I</td>
+                <td class="px-4 py-2 text-center">16–19 Juli 2025</td>
+                <td class="px-4 py-2 text-center">Teon Nila Serua</td>
+                <td class="px-4 py-2 text-center">Maluku Tengah</td>
+                <td class="px-4 py-2 text-center">
+                  <a href="https://drive.google.com/file/d/1dEzF86IUiKLxaKtL7EB7gDh_jQRzeB8g/view?usp=sharing" target="_blank"
+                    class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200">Lihat</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Card view (Mobile) -->
+        <div class="space-y-4 md:hidden">
+          <div class="p-4 bg-gray-50 rounded-lg shadow">
+            <p class="font-semibold">1. Penjajakan Pelatihan Perencanaan Pembangunan Partisipatif Angkatan I</p>
+            <p class="text-sm text-gray-600">📅 16–19 Juli 2025</p>
+            <p class="text-sm text-gray-600">📍 Taniwel, Seram Bagian Barat</p>
+            <a href="https://drive.google.com/file/d/1W3oziODjTw0i_my3EuFz_AB7ZsPR59qT/view?usp=sharing" target="_blank"
+              class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200">Lihat
+              Laporan</a>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-lg shadow">
+            <p class="font-semibold">2. Penjajakan Pelatihan Perencanaan Pembangunan Partisipatif Angkatan II</p>
+            <p class="text-sm text-gray-600">📅 16–19 Juli 2025</p>
+            <p class="text-sm text-gray-600">📍 Taniwel Timur, Seram Bagian Barat</p>
+            <a href="https://drive.google.com/file/d/1FfF1xLamT9arTAr5jyb4hEvL1eqpUViB/view?usp=sharing" target="_blank"
+              class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200">Lihat
+              Laporan</a>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-lg shadow">
+            <p class="font-semibold">3. Penjajakan Pelatihan Pengelolaan Badan Usaha Milik Desa Angkatan I</p>
+            <p class="text-sm text-gray-600">📅 16–19 Juli 2025</p>
+            <p class="text-sm text-gray-600">📍 Teon Nila Serua, Maluku Tengah</p>
+            <a href="https://drive.google.com/file/d/1dEzF86IUiKLxaKtL7EB7gDh_jQRzeB8g/view?usp=sharing" target="_blank"
+              class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-200">Lihat
+              Laporan</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accordion Pelatihan & Pendampingan -->
+<!-- Accordion Pelatihan -->
+<div x-data="{open:false}" class="border rounded-lg shadow bg-white">
+  <button @click="open = !open"
+    class="w-full flex justify-between items-center bg-green-50 px-6 py-4 text-lg font-semibold rounded-t-lg text-gray-700">
+    <span>🎓 Pelatihan</span>
+    <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor"
+      stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="p-4">
+
+    <!-- Table view (Desktop) -->
+    <div class="overflow-x-auto hidden md:block">
+      <table class="min-w-full border border-gray-200 rounded-lg">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="px-4 py-2 text-center">No</th>
+            <th class="px-4 py-2 text-left">Nama Program</th>
+            <th class="px-4 py-2 text-center">Tanggal</th>
+            <th class="px-4 py-2 text-center">Kecamatan</th>
+            <th class="px-4 py-2 text-center">Kabupaten</th>
+            <th class="px-4 py-2 text-center">Dokumen</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-700">
+          <tr class="odd:bg-gray-50 hover:bg-gray-100">
+            <td class="px-4 py-2 text-center">1</td>
+            <td class="px-4 py-2">Pelatihan Perencanaan Pembangunan Partisipatif Angkatan I</td>
+            <td class="px-4 py-2 text-center">11–14 Agustus 2025</td>
+            <td class="px-4 py-2 text-center">Taniwel</td>
+            <td class="px-4 py-2 text-center">Seram Bagian Barat</td>
+            <td class="px-4 py-2 text-center">
+              <a href="https://drive.google.com/file/d/1vkhNFaTn38DS8_cd9l8dua6_cc3hI6fR/view?usp=sharing" target="_blank"
+                class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200">Lihat</a>
+            </td>
+          </tr>
+          <tr class="odd:bg-gray-50 hover:bg-gray-100">
+            <td class="px-4 py-2 text-center">2</td>
+            <td class="px-4 py-2">Pelatihan Perencanaan Pembangunan Partisipatif Angkatan II</td>
+            <td class="px-4 py-2 text-center">11–14 Agustus 2025</td>
+            <td class="px-4 py-2 text-center">Taniwel Timur</td>
+            <td class="px-4 py-2 text-center">Seram Bagian Barat</td>
+            <td class="px-4 py-2 text-center">
+              <a href="https://drive.google.com/file/d/12tbdViTSQLA81G8luo3IKNYiCtwATA_l/view?usp=sharing" target="_blank"
+                class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200">Lihat</a>
+            </td>
+          </tr>
+          <tr class="odd:bg-gray-50 hover:bg-gray-100">
+            <td class="px-4 py-2 text-center">3</td>
+            <td class="px-4 py-2">Pelatihan Pengelolaan Badan Usaha Milik Desa Angkatan I</td>
+            <td class="px-4 py-2 text-center">11–14 Agustus 2025</td>
+            <td class="px-4 py-2 text-center">Teon Nila Serua</td>
+            <td class="px-4 py-2 text-center">Maluku Tengah</td>
+            <td class="px-4 py-2 text-center">
+              <a href="https://drive.google.com/file/d/1fhdmnnImjNshfSM0D6suLbIvxmqBqqlY/view?usp=sharing" target="_blank"
+                class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200">Lihat</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Card view (Mobile) -->
+    <div class="space-y-4 md:hidden">
+      <div class="p-4 bg-gray-50 rounded-lg shadow">
+        <p class="font-semibold">1. Pelatihan Perencanaan Pembangunan Partisipatif Angkatan I</p>
+        <p class="text-sm text-gray-600">📅 11–14 Agustus 2025</p>
+        <p class="text-sm text-gray-600">📍 Taniwel, Seram Bagian Barat</p>
+        <a href="https://drive.google.com/file/d/1vkhNFaTn38DS8_cd9l8dua6_cc3hI6fR/view?usp=sharing" target="_blank"
+          class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200">Lihat
+          Laporan</a>
+      </div>
+
+      <div class="p-4 bg-gray-50 rounded-lg shadow">
+        <p class="font-semibold">2. Pelatihan Perencanaan Pembangunan Partisipatif Angkatan II</p>
+        <p class="text-sm text-gray-600">📅 11–14 Agustus 2025</p>
+        <p class="text-sm text-gray-600">📍 Taniwel Timur, Seram Bagian Barat</p>
+        <a href="https://drive.google.com/file/d/12tbdViTSQLA81G8luo3IKNYiCtwATA_l/view?usp=sharing" target="_blank"
+          class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200">Lihat
+          Laporan</a>
+      </div>
+
+      <div class="p-4 bg-gray-50 rounded-lg shadow">
+        <p class="font-semibold">3. Pelatihan Pengelolaan Badan Usaha Milik Desa Angkatan I</p>
+        <p class="text-sm text-gray-600">📅 11–14 Agustus 2025</p>
+        <p class="text-sm text-gray-600">📍 Teon Nila Serua, Maluku Tengah</p>
+        <a href="https://drive.google.com/file/d/1fhdmnnImjNshfSM0D6suLbIvxmqBqqlY/view?usp=sharing" target="_blank"
+          class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200">Lihat
+          Laporan</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+   <!-- Accordion Pendampingan -->
+<div x-data="{open:false}" class="border rounded-lg shadow bg-white">
+  <button @click="open = !open"
+    class="w-full flex justify-between items-center bg-purple-50 px-6 py-4 text-lg font-semibold rounded-t-lg text-gray-700">
+    <span>🤝 Pendampingan</span>
+    <svg :class="{'rotate-180': open}" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor"
+      stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="p-4">
+
+    <!-- Table view (Desktop) -->
+    <div class="overflow-x-auto hidden md:block">
+      <table class="min-w-full border border-gray-200 rounded-lg">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="px-4 py-2 text-center">No</th>
+            <th class="px-4 py-2 text-left">Nama Program</th>
+            <th class="px-4 py-2 text-center">Tanggal</th>
+            <th class="px-4 py-2 text-center">Kecamatan</th>
+            <th class="px-4 py-2 text-center">Kabupaten</th>
+            <th class="px-4 py-2 text-center">Dokumen</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-700">
+          <tr class="odd:bg-gray-50 hover:bg-gray-100">
+            <td class="px-4 py-2 text-center">1</td>
+            <td class="px-4 py-2">Pendampingan Masyarakat Triwulan I Tahun 2025</td>
+            <td class="px-4 py-2 text-center">Januari–Maret 2025</td>
+            <td class="px-4 py-2 text-center">Pulau Ambon</td>
+            <td class="px-4 py-2 text-center">Ambon dan Maluku Tengah</td>
+            <td class="px-4 py-2 text-center">
+              <a href="https://drive.google.com/file/d/1Puhq0awzbK244ekGtylBW5NVh_G3BXKv/view?usp=sharing" target="_blank"
+                class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200">Lihat</a>
+            </td>
+          </tr>
+          <tr class="odd:bg-gray-50 hover:bg-gray-100">
+            <td class="px-4 py-2 text-center">2</td>
+            <td class="px-4 py-2">Pendampingan Masyarakat Triwulan II Tahun 2025</td>
+            <td class="px-4 py-2 text-center">April–Juni 2025</td>
+            <td class="px-4 py-2 text-center">Pulau Ambon</td>
+            <td class="px-4 py-2 text-center">Ambon dan Maluku Tengah</td>
+            <td class="px-4 py-2 text-center">
+              <a href="https://drive.google.com/file/d/1-AEnoJprqWhu2ZrITJl8Upz7LiEEPCF9/view?usp=sharing" target="_blank"
+                class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200">Lihat</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Card view (Mobile) -->
+    <div class="space-y-4 md:hidden">
+      <div class="p-4 bg-gray-50 rounded-lg shadow">
+        <p class="font-semibold">1. Pendampingan Masyarakat Triwulan I Tahun 2025</p>
+        <p class="text-sm text-gray-600">📅 Januari–Maret 2025</p>
+        <p class="text-sm text-gray-600">📍 Pulau Ambon, Ambon & Maluku Tengah</p>
+        <a href="https://drive.google.com/file/d/1Puhq0awzbK244ekGtylBW5NVh_G3BXKv/view?usp=sharing" target="_blank"
+          class="inline-block mt-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200">Lihat
+          Laporan</a>
+      </div>
+
+      <div class="p-4 bg-gray-50 rounded-lg shadow">
+        <p class="font-semibold">2. Pendampingan Masyarakat Triwulan II Tahun 2025</p>
+        <p class="text-sm text-gray-600">📅 April–Juni 2025</p>
+        <p class="text-sm text-gray-600">📍 Pulau Ambon, Ambon & Maluku Tengah</p>
+        <a href="https://drive.google.com/file/d/1-AEnoJprqWhu2ZrITJl8Upz7LiEEPCF9/view?usp=sharing" target="_blank"
+          class="inline-block mt-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium hover:bg-purple-200">Lihat
+          Laporan</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+   
+   
+    <!-- supaya jawaban ini tidak terlalu panjang, aku kasih 1 contoh penuh di atas -->
+     
+  </div>
+
+  <!-- Alpine.js -->
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</section>
+
+
+
+
+
+
+
+
+
+
+<!-- KONTAK -->
+<section id="kontak" class="py-16 bg-gradient-to-b from-pink-50 to-pink-200">
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-800">Kontak & Kanal Resmi</h2>
+      <p class="text-gray-700 mt-2">Terhubung dengan BPPMDT Ambon melalui kanal berikut.</p>
+    </div>
+
+    <!-- Grid utama -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+
+      <!-- KIRI: Media Sosial -->
+      <div class="bg-gradient-to-b from-pink-50 to-pink-200 rounded-2xl shadow-sm p-6 flex flex-col justify-between h-full">
+        <h3 class="font-semibold text-gray-800 mb-4">Media Sosial & Kanal</h3>
+        <ul class="space-y-3 flex-1 flex flex-col justify-between">
+          <li class="flex items-center gap-3">
+            <i class="fab fa-instagram text-lg text-pink-500"></i>
+            <a href="https://instagram.com/bppmd_ambon" target="_blank" class="text-sm text-gray-800 hover:underline">
+              Instagram — @bppmd_ambon
+            </a>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fab fa-facebook text-lg text-blue-700"></i>
+            <a href="https://facebook.com/bppmdambon" target="_blank" class="text-sm text-gray-800 hover:underline">
+              Facebook — /bppmd_ambon
+            </a>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fab fa-x-twitter text-lg text-gray-800"></i>
+            <a href="https://twitter.com/bppmd_ambon" target="_blank" class="text-sm text-gray-800 hover:underline">
+              X (Twitter) — @bppmd_ambon
+            </a>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fab fa-tiktok text-lg text-black"></i>
+            <a href="https://tiktok.com/@bppmddttambon" target="_blank" class="text-sm text-gray-800 hover:underline">
+              TikTok — @bppmddttambon
+            </a>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fab fa-youtube text-lg text-red-600"></i>
+            <a href="https://youtube.com/@bppmd_ambon" target="_blank" class="text-sm text-gray-800 hover:underline">
+              YouTube — @bppmd_ambon
+            </a>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fab fa-whatsapp text-lg text-green-500"></i>
+            <a href="https://wa.me/6285121045072?text=Halo%20BPPMDT%20Ambon" target="_blank" class="text-sm text-gray-800 hover:underline">
+              WhatsApp — +62 851-2104-5072
+            </a>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fas fa-envelope text-lg text-yellow-600"></i>
+            <a href="mailto:balai_ambon@kemendes.go.id" class="text-sm text-gray-800 hover:underline">
+              Email — balai_ambon@kemendes.go.id
+            </a>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fas fa-globe text-lg text-purple-600"></i>
+            <a href="http://bppmddt-ambon.kemendesa.go.id" target="_blank" class="text-sm text-gray-800 hover:underline">
+              Website Resmi — bppmddt-ambon.kemendesa.go.id
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- KANAN: Maps + Info -->
+      <div class="bg-gradient-to-b from-pink-50 to-pink-200 rounded-2xl shadow-sm p-6 flex flex-col justify-between h-full">
+        <div class="rounded-xl overflow-hidden shadow">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7128.291532884336!2d128.2476123362056!3d-3.628192186476587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2d6ced0030267ce5%3A0x48e7d70625f7f274!2sBalai%20Pelatihan%20Dan%20Pemberdayaan%20Masyarakat%20Desa%20Dan%20Daerah%20Tertinggal%20(BPPMDDT)%20Ambon!5e0!3m2!1sen!2sid!4v1757038215387!5m2!1sen!2sid" 
+            width="100%" height="220" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-semibold text-gray-800 flex items-center gap-2 mb-1">
+            <i class="fas fa-map-marker-alt text-pink-500"></i> Alamat
+          </h3>
+          <p class="text-sm text-gray-600">
+            Jl. Laksdya Leo Wattimena, Lorong PLN<br>Passo, Baguala, Ambon, Maluku 97232
+          </p>
+        </div>
+        <div class="mt-4">
+          <h3 class="font-semibold text-gray-800 flex items-center gap-2 mb-1">
+            <i class="fas fa-clock text-pink-500"></i> Jam Layanan
+          </h3>
+          <p class="text-sm text-gray-600">
+            Senin–Jumat: 08.00–16.00 WIT<br>
+            Sabtu–Minggu & Libur: Tutup
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+</body>
+
+
+<!-- FOOTER -->
+<footer class="bg-pink-300 py-4 text-center">
+  <!-- Copyright -->
+  <p class="text-gray-800 text-sm">
+    &copy; 2025 <span class="font-semibold">Tim Kerja Data dan Informasi BPPMDT Ambon</span>. All rights reserved.
+  </p>
+
+  <!-- Logo + Nama -->
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-2 mt-2 px-2">
+    <img src="img/logo.jpeg" alt="Logo BPPMDT Ambon" class="h-7 w-7 rounded-full">
+    <span class="text-gray-700 text-xs font-medium text-center sm:text-left">
+      Balai Pelatihan dan Pemberdayaan Masyarakat Desa & Daerah Tertinggal Ambon
+    </span>
+  </div>
+</footer>
+
+
+
+
+</html>
