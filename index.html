@@ -521,11 +521,75 @@ const accentPastels = ["transparent", "transparent"];
       <div class="swiper-pagination"></div>
     </div>
 
+<!-- Tombol / Preview Struktur Organisasi -->
+<div class="mt-6 flex justify-center">
+  <button id="openStruktur" 
+          class="inline-block px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full shadow-md transition">
+    📄 Lihat Struktur Organisasi
+  </button>
+</div>
+
+<!-- Modal Struktur Organisasi -->
+<div id="strukturModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-xl p-4 w-[90%] max-w-4xl h-[80%] flex flex-col">
+    <iframe id="strukturFrame" src="img/Struktur Organisasi.pdf" class="w-full h-full rounded-xl" frameborder="0"></iframe>
+    <button id="closeStruktur" class="mt-2 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 self-end">Tutup</button>
+  </div>
+</div>
+
+<style>
+  /* Hover desktop efek */
+  #openStruktur:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: 0.3s;
+  }
+
+  /* Modal centering */
+  #strukturModal.flex {
+    display: flex;
+  }
+</style>
+
+<script>
+  const openStruktur = document.getElementById("openStruktur");
+  const closeStruktur = document.getElementById("closeStruktur");
+  const strukturModal = document.getElementById("strukturModal");
+
+  // Buka modal
+  openStruktur.addEventListener("click", () => {
+    strukturModal.classList.remove("hidden");
+    strukturModal.classList.add("flex");
+  });
+
+  // Tutup modal
+  closeStruktur.addEventListener("click", () => {
+    strukturModal.classList.add("hidden");
+    strukturModal.classList.remove("flex");
+  });
+
+  // Klik di overlay juga tutup modal
+  strukturModal.addEventListener("click", (e) => {
+    if(e.target === strukturModal) {
+      strukturModal.classList.add("hidden");
+      strukturModal.classList.remove("flex");
+    }
+  });
+</script>
+
+
     <!-- Tombol Buka Modal -->
     <button id="openPasswordModal"
       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full transition mt-6">
       Lihat Daftar Nominatif Pegawai
     </button>
+    
+    <!-- Tombol buka profil.html -->
+<button id="openProfilModal"
+  class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-full transition mt-4">
+  Lihat Profil Pegawai
+</button>
+
 
   </div>
 </section>
@@ -555,6 +619,9 @@ const accentPastels = ["transparent", "transparent"];
   .mySwiper .swiper-slide {
     display: flex; flex-direction: column; align-items: center; text-align: center;
   }
+  .mySwiper { padding: 0 1rem; } /* beri padding kiri-kanan */
+.swiper-slide { margin-bottom: 1rem; }
+
   .mySwiper .swiper-pagination { margin-top: 16px; position: static; }
   .mySwiper .swiper-pagination-bullet { background: #93c5fd; opacity: 0.6; }
   .mySwiper .swiper-pagination-bullet-active { background: #2563eb; opacity: 1; }
@@ -564,7 +631,7 @@ const accentPastels = ["transparent", "transparent"];
 
 <script>
   // Load Data Pegawai
-  const pegawaiCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTn299S4E7rlrL-UcnekUo9vNnGT4Dlp0GgWVbH6bH2UvEZ3ZJTB8_kWLzmcNswdQ/pub?gid=718410139&single=true&output=csv";
+  const pegawaiCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=37406242&single=true&output=csv";
   const pegawaiList = document.getElementById("pegawaiList");
 
   Papa.parse(pegawaiCSV, {
@@ -598,30 +665,52 @@ const accentPastels = ["transparent", "transparent"];
 
   // Modal Password
   const modal = document.getElementById("passwordModal");
-  const openBtn = document.getElementById("openPasswordModal");
-  const cancelBtn = document.getElementById("cancelModal");
-  const submitBtn = document.getElementById("submitPassword");
-  const input = document.getElementById("passwordInput");
-  const errorMsg = document.getElementById("errorMsg");
+const openBtnNominatif = document.getElementById("openPasswordModal");
+const openBtnProfil = document.getElementById("openProfilModal");
+const cancelBtn = document.getElementById("cancelModal");
+const submitBtn = document.getElementById("submitPassword");
+const input = document.getElementById("passwordInput");
+const errorMsg = document.getElementById("errorMsg");
 
-  openBtn.addEventListener("click", () => {
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-    input.value = "";
-    errorMsg.classList.add("hidden");
-    input.focus();
-  });
-  cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
-  submitBtn.addEventListener("click", () => {
-    if (input.value === "bppmdtamq") { // ganti password sesuai kebutuhan
-      window.open("https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=37406242&single=true&output=csv", "_blank");
-      modal.classList.add("hidden");
-    } else {
-      errorMsg.classList.remove("hidden");
-    }
-  });
+let targetLink = "";
+let targetPassword = "";
+
+// Tombol nominatif
+openBtnNominatif.addEventListener("click", () => {
+  targetLink = "https://docs.google.com/spreadsheets/d/1b0wF5O4sZDeFEMQ_S01aBCTHdOmVn2k8/edit?usp=drive_link&ouid=114288996559239029444&rtpof=true&sd=true";
+  targetPassword = "nominatif123"; // password nominatif
+  showModal();
+});
+
+// Tombol profil
+openBtnProfil.addEventListener("click", () => {
+  targetLink = "pegawai.html";
+  targetPassword = "profil123"; // password pegawai
+  showModal();
+});
+
+function showModal() {
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+  input.value = "";
+  errorMsg.classList.add("hidden");
+  input.focus();
+}
+
+// Tombol batal
+cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
+
+// Tombol submit
+submitBtn.addEventListener("click", () => {
+  if (input.value === targetPassword) {
+    window.open(targetLink, "_blank");
+    modal.classList.add("hidden");
+  } else {
+    errorMsg.classList.remove("hidden");
+  }
+});
+
 </script>
-
 
 
 
@@ -1605,6 +1694,7 @@ backToTop.addEventListener("click", (e) => {
 
 
 </html>
+
 
 
 
