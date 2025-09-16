@@ -385,55 +385,91 @@ document.querySelectorAll('a[href^="#data"]').forEach(anchor => {
 
 
 <!-- GALERI -->
-<section id="galeri" class="py-16 bg-gradient-to-t from-gray-100 via-green-50 to-gray-100">
-  <div class="container mx-auto">
+<section id="galeri" class="py-16 px-4 bg-gradient-to-b from-green-100 via-green-50 to-blue-50">
+  <div class="max-w-7xl mx-auto">
     <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Galeri Dokumentasi</h2>
-    <div id="galeriGrid" class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4"></div>
+    
+    <!-- Grid Preview 6 Foto -->
+    <div id="galeriGrid" class="galeri-masonry"></div>
+
+    <!-- Tombol Tampilkan Lebih Banyak -->
+    <div class="text-center mt-8">
+      <a href="galeri.html" 
+         class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-md transition inline-block">
+        📸 Tampilkan Lebih Banyak
+      </a>
+    </div>
   </div>
 </section>
 
-<!-- PapaParse -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/macy@2.5.1/dist/macy.min.js"></script>
 
 <script>
-  const galeriCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=322564724&single=true&output=csv";
-  const galeriGrid = document.getElementById("galeriGrid");
+const galeriCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=322564724&single=true&output=csv";
+const galeriGrid = document.getElementById("galeriGrid");
 
-  Papa.parse(galeriCSV, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-      results.data.forEach(row => {
-        if (!row["Nama Kegiatan"]) return;
+Papa.parse(galeriCSV, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    let allData = results.data.filter(row => row["Nama Kegiatan"]);
 
-        // Foto thumbnail (ID Google Drive)
-        let thumbUrl = "img/avatar-default.jpg";
-        if (row["Foto"] && row["Foto"].trim() !== "") {
-          thumbUrl = `https://lh3.googleusercontent.com/d/${row["Foto"].trim()}`;
-        }
-
-        // Link ke folder/drive dokumentasi
-        const driveUrl = row["Drive"] || "#";
-
-        const item = document.createElement("a");
-        item.href = driveUrl;
-        item.target = "_blank";
-        item.className = "block break-inside-avoid group";
-
-        item.innerHTML = `
-          <div class="overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition">
-            <img src="${thumbUrl}" alt="${row["Nama Kegiatan"]}"
-                 class="w-full object-cover group-hover:scale-105 transition-transform duration-300">
-            <div class="p-3 bg-white">
-              <p class="font-semibold text-gray-800 text-sm">${row["Nama Kegiatan"]}</p>
-            </div>
-          </div>
-        `;
-        galeriGrid.appendChild(item);
-      });
+    // Urut berdasarkan Tanggal terbaru jika ada
+    if(allData[0].Tanggal){
+      allData.sort((a,b) => new Date(b.Tanggal) - new Date(a.Tanggal));
     }
-  });
+
+    // Ambil 6 foto pertama
+    const latestSix = allData.slice(0,6);
+
+// Warna card benar-benar transparan
+const mainPastel = "transparent";
+const accentPastels = ["transparent", "transparent"];
+
+    latestSix.forEach((row, index) => {
+      let thumbUrl = row["Foto"] && row["Foto"].trim() !== "" ? 
+                     `https://lh3.googleusercontent.com/d/${row["Foto"].trim()}` : 
+                     "img/avatar-default.jpg";
+      const driveUrl = row["Drive"] || "#";
+
+      const item = document.createElement("a");
+      item.href = driveUrl;
+      item.target = "_blank";
+      item.className = "galeri-item block group overflow-hidden rounded-2xl transition-shadow";
+
+      const bgColor = index % 6 === 0 ? accentPastels[0] :
+                      index % 5 === 0 ? accentPastels[1] :
+                      mainPastel;
+
+      item.innerHTML = `
+        <div class="p-2 rounded-xl shadow hover:shadow-lg transition" style="background-color: ${bgColor}">
+          <img src="${thumbUrl}" alt="${row["Nama Kegiatan"]}" class="w-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
+          <div class="mt-2 text-center">
+            <p class="font-semibold text-gray-800 text-sm">${row["Nama Kegiatan"]}</p>
+          </div>
+        </div>
+      `;
+      galeriGrid.appendChild(item);
+    });
+
+    // Inisialisasi Macy.js untuk layout Pinterest
+    Macy({
+      container: '#galeriGrid',
+      trueOrder: false,
+      waitForImages: true,
+      margin: 16,
+      columns: 4,
+      breakAt: {
+        1200: 4,
+        1024: 3,
+        768: 2,
+        480: 1
+      }
+    });
+  }
+});
 </script>
 
 
@@ -1544,6 +1580,7 @@ els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
 
 
 </html>
+
 
 
 
