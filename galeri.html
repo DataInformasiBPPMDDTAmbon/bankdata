@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeri Lengkap - Bank Data Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" integrity="sha512-pV8q3E7v2O/5/..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #FFF5E5; }
+    .galeri-item img { transition: transform 0.3s ease; }
+    .galeri-item:hover img { transform: scale(1.05); }
+  </style>
+</head>
+<body>
+
+  <!-- Header / Navbar -->
+  <header class="bg-blue-900 text-white p-4 text-center font-bold text-xl md:text-2xl">
+    Galeri Lengkap Bank Data Digital
+  </header>
+
+  <!-- Main Section -->
+<section class="py-16 px-4" style="background: linear-gradient(135deg, #D9F9DD 0%, #E5F3FF 50%, #F0FFF4 100%);">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Galeri Dokumentasi Lengkap</h2>
+    <div id="fullGaleriGrid"></div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/macy@2.5.1/dist/macy.min.js"></script>
+
+<script>
+const galeriCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=322564724&single=true&output=csv";
+const galeriGrid = document.getElementById("fullGaleriGrid");
+
+Papa.parse(galeriCSV, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    let allData = results.data.filter(row => row["Nama Kegiatan"]);
+    if(allData[0].Tanggal){
+      allData.sort((a,b) => new Date(b.Tanggal) - new Date(a.Tanggal));
+    }
+
+    allData.forEach((row) => {
+      let thumbUrl = row["Foto"] && row["Foto"].trim() !== "" ? 
+                     `https://lh3.googleusercontent.com/d/${row["Foto"].trim()}` : 
+                     "img/avatar-default.jpg";
+      const driveUrl = row["Drive"] || "#";
+
+      const item = document.createElement("a");
+      item.href = driveUrl;
+      item.target = "_blank";
+      item.className = "galeri-item block break-inside-avoid mb-4";
+
+      item.innerHTML = `
+        <div class="p-2 rounded-2xl shadow-md hover:shadow-xl transition bg-transparent">
+          <img src="${thumbUrl}" alt="${row["Nama Kegiatan"]}" class="w-full object-cover rounded-lg">
+          <div class="mt-2 text-center">
+            <p class="font-semibold text-gray-800 text-sm">${row["Nama Kegiatan"]}</p>
+          </div>
+        </div>
+      `;
+      galeriGrid.appendChild(item);
+    });
+
+    // Masonry layout
+    Macy({
+      container: '#fullGaleriGrid',
+      trueOrder: false,
+      waitForImages: true,
+      margin: 16,
+      columns: 4,
+      breakAt: { 1200: 4, 1024: 3, 768: 2, 480: 1 }
+    });
+  }
+});
+</script>
+
+
+</body>
+</html>
