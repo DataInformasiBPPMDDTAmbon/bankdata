@@ -94,38 +94,61 @@
 
 <!-- BERANDA -->
 <section id="beranda" 
-         class="relative bg-cover bg-center text-white min-h-screen flex flex-col items-center justify-center text-center px-6"
-         style="background-image: url('img/background.png');">
+         class="relative text-white min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+
+  <!-- Background Video -->
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
+    <source src="vid/background.mp4" type="video/mp4">
+    Browser Anda tidak mendukung video.
+  </video>
 
   <!-- Overlay -->
   <div class="absolute inset-0 bg-black/60"></div>
 
   <!-- Konten -->
   <div class="relative z-10 container mx-auto flex flex-col items-center">
-    
+
     <!-- Judul -->
     <h2 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
       Selamat Datang di <span class="text-blue-400">Bank Data Digital</span>
     </h2>
 
     <!-- Subjudul -->
-    <p class="text-lg md:text-xl mb-10 max-w-2xl text-gray-200">
+    <p class="text-lg md:text-xl mb-6 max-w-2xl text-gray-200">
       Balai Pelatihan dan Pemberdayaan Masyarakat Desa dan Daerah Tertinggal Ambon 
       menyediakan pusat informasi digital, pendaftaran program, dan layanan masyarakat.
     </p>
 
-    <!-- Tombol Cari Dokumen (Utama) -->
+    <!-- Tombol Cari Dokumen -->
     <a href="#data" 
-       class="bg-blue-600 hover:bg-blue-700 px-7 py-3 rounded-full text-white font-semibold shadow-lg transition mb-10">
+       class="bg-blue-600 hover:bg-blue-700 px-7 py-3 rounded-full text-white font-semibold shadow-lg transition mb-8">
        🔍 Cari Dokumen
     </a>
 
     <!-- Total Dokumen -->
-    <div class="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full shadow-lg inline-block">
+    <div class="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full shadow-lg inline-block mb-6">
       <p class="text-xs text-gray-200">Total Dokumen</p>
       <p id="totalDocs" class="text-xl font-bold text-blue-300 counter">0</p>
     </div>
+
   </div>
+<!-- Running Text Pengumuman (Full Width, di luar container) -->
+<div class="w-full bg-blue-500/40 text-gray-200 overflow-hidden shadow-md">
+  <marquee behavior="scroll" direction="left" scrollamount="8" class="py-1.5 font-medium tracking-wide">
+    📢 <a href="https://www.instagram.com/p/DOm6VBPASaL/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" 
+          target="_blank" 
+          class="hover:text-blue-200 transition">
+      Pengumuman: Pendaftaran Pendampingan Online PAPARISA telah dibuka, klik di sini untuk info lengkap!
+    </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    📢 <a href="https://www.instagram.com/p/DNk-dn_BLQS/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+    target="_blank" class="hover:text-blue-200">Bantu Katong Wujudkan Zona Integritas Wilayah Bebas Korupsi
+  </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   📢 <a href="https://www.instagram.com/p/DNndMMEhtia/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+    target="_blank" class="hover:text-blue-200">Budaya Kerja BPPMDDT Ambon ARIKA Akuntabel Responsif Integritas Kekeluargaan Asri
+  </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </marquee>
+</div>
+
 </section>
 
 <!-- PapaParse.js -->
@@ -171,7 +194,6 @@ document.querySelectorAll('a[href^="#data"]').forEach(anchor => {
   });
 });
 </script>
-
 
 
 
@@ -1530,3 +1552,4 @@ els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
 
 
 </html>
+
