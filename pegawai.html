@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Pegawai BPPMDDT Ambon</title>
+<link rel="icon" type="image/png" href="img/logojg.png">
+<link rel="apple-touch-icon" sizes="180x180" href="img/logojg.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/macy@2.5.1/dist/macy.min.js"></script>
+<style>
+  body { font-family: 'Inter', sans-serif; background: #F7FAFC; }
+  
+  /* Card lebih kecil */
+  .pegawai-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 0.75rem; /* lebih compact */
+    margin-bottom: 0.75rem;
+    border-radius: 1rem;
+    background-color: #E0F2FE; /* pastel biru muda */
+  }
+  .pegawai-card:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+  /* Foto lebih kecil */
+  .pegawai-card img {
+    width: 3rem;  /* w-12 */
+    height: 3rem; /* h-12 */
+    margin-bottom: 0.25rem;
+  }
+
+  /* Teks lebih kecil */
+  .pegawai-card p {
+    font-size: 0.7rem;
+  }
+  .pegawai-card .text-gray-600 {
+    font-size: 0.625rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="bg-blue-900 text-white text-center p-4 font-bold text-xl">Daftar Pegawai BPPMDDT Ambon</header>
+
+<section class="py-6 px-4 md:px-8 max-w-7xl mx-auto bg-blue-100 rounded-xl">
+  <!-- Search & Filter -->
+  <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+    <input id="searchInput" type="text" placeholder="Cari nama pegawai..." 
+           class="w-full md:w-1/3 p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300">
+    <select id="filterSelect" class="w-full md:w-1/4 p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300">
+      <option value="">-- Filter TMT --</option>
+      <option value="naik_pangkat">Naik Pangkat Tahun Ini</option>
+      <option value="kgb">KGB Tahun Ini</option>
+      <option value="pensiun">Pensiun Tahun Ini</option>
+    </select>
+  </div>
+
+  <!-- Grid Pegawai -->
+  <div id="pegawaiGrid"></div>
+</section>
+
+<script>
+let allData = [];
+const pegawaiGrid = document.getElementById("pegawaiGrid");
+const searchInput = document.getElementById("searchInput");
+const filterSelect = document.getElementById("filterSelect");
+
+const pegawaiCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=37406242&single=true&output=csv";
+
+// Helper functions
+function parseDate(d){ return d ? new Date(d) : null; }
+function formatDate(d){ return d ? d.toLocaleDateString("id-ID", { day:"numeric", month:"long", year:"numeric" }) : "-"; }
+function nextKGB(last){ return last ? new Date(new Date(last).setFullYear(new Date(last).getFullYear()+2)) : null; }
+function nextPangkat(tmt){ return tmt ? new Date(new Date(tmt).setFullYear(new Date(tmt).getFullYear()+4)) : null; }
+function diffYears(d1,d2){ return d1 && d2 ? d2.getFullYear()-d1.getFullYear() : "-"; }
+
+// Render grid
+function renderGrid(data){
+  pegawaiGrid.innerHTML = "";
+  data.forEach(row=>{
+    const thumb = row["Foto"] ? `https://lh3.googleusercontent.com/d/${row["Foto"]}` : "img/avatar-default.jpg";
+    const tmtPNS = parseDate(row["TMT PNS"]);
+    const tmtPangkat = parseDate(row["TMT Pangkat"]);
+    const tmtJabatan = parseDate(row["TMT Jabatan"]);
+    const kgbLast = parseDate(row["KGB Terakhir"]);
+    const pensiun = parseDate(row["TMT Pensiun"]);
+    const nextKGBDate = nextKGB(row["KGB Terakhir"]);
+    const nextPangkatDate = nextPangkat(row["TMT Pangkat"]);
+    const untilPensiun = pensiun ? diffYears(new Date(), pensiun) : "-";
+
+    const card = document.createElement("div");
+    card.className = "pegawai-card break-inside-avoid shadow";
+
+    card.innerHTML = `
+      <div class="flex flex-col items-center text-center">
+        <img src="${thumb}" onerror="this.src='img/avatar-default.jpg'">
+        <p class="font-semibold">${row["Nama"]}</p>
+        <p class="text-gray-500">${row["NIP"]||""}</p>
+        <p class="text-gray-500">${row["Jabatan"]||""}</p>
+        <div class="mt-1 text-gray-600 text-left text-[0.6rem]">
+          <p>TMT PNS: ${formatDate(tmtPNS)}</p>
+          <p>TMT Jabatan: ${formatDate(tmtJabatan)}</p>
+          <p>TMT Pangkat: ${formatDate(tmtPangkat)} (Next: ${formatDate(nextPangkatDate)})</p>
+          <p>KGB Terakhir: ${formatDate(kgbLast)} (Next: ${formatDate(nextKGBDate)})</p>
+          <p>TMT Pensiun: ${formatDate(pensiun)} (Sisa: ${untilPensiun} th)</p>
+        </div>
+      </div>
+    `;
+    pegawaiGrid.appendChild(card);
+  });
+
+  // Masonry
+  Macy({
+    container: '#pegawaiGrid',
+    trueOrder: false,
+    waitForImages: true,
+    margin: 12,
+    columns: 4,
+    breakAt:{1200:4,1024:3,768:2,480:1}
+  });
+}
+
+// Load CSV
+Papa.parse(pegawaiCSV, { download:true, header:true, skipEmptyLines:true,
+  complete:function(results){ allData = results.data.filter(r=>r["Nama"]); renderGrid(allData); }
+});
+
+// Search
+searchInput.addEventListener("input",()=>{
+  const query = searchInput.value.toLowerCase();
+  renderGrid(allData.filter(r=>r["Nama"].toLowerCase().includes(query)));
+});
+
+// Filter
+filterSelect.addEventListener("change",()=>{
+  const val = filterSelect.value;
+  const today = new Date();
+  let filtered = [...allData];
+
+  if(val==="naik_pangkat"){
+    filtered = filtered.filter(r=>{ const next=nextPangkat(r["TMT Pangkat"]); return next && next.getFullYear()===today.getFullYear(); });
+  } else if(val==="kgb"){
+    filtered = filtered.filter(r=>{ const next=nextKGB(r["KGB Terakhir"]); return next && next.getFullYear()===today.getFullYear(); });
+  } else if(val==="pensiun"){
+    filtered = filtered.filter(r=>{ const p=parseDate(r["TMT Pensiun"]); return p && p.getFullYear()===today.getFullYear(); });
+  }
+
+  renderGrid(filtered);
+});
+</script>
+
+</body>
+</html>
