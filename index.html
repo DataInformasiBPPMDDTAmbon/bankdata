@@ -137,21 +137,26 @@
   </div>
   
 <!-- Running Text Pengumuman -->
-<div class="relative z-10 w-full mt-6 bg-transparent text-gray-200 overflow-hidden shadow-md">
-  <marquee behavior="scroll" direction="left" scrollamount="8" class="py-1.5 font-medium tracking-wide">
-    📢 <a href="https://www.instagram.com/p/DOm6VBPASaL/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" 
-          target="_blank" 
-          class="hover:text-blue-200 transition">
-      Pengumuman: Pendaftaran Pendampingan Online PAPARISA telah dibuka, klik di sini untuk info lengkap!
-    </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    📢 <a href="https://www.instagram.com/p/DNk-dn_BLQS/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
-    target="_blank" class="hover:text-blue-200">Bantu Katong Wujudkan Zona Integritas Wilayah Bebas Korupsi
-  </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   📢 <a href="https://www.instagram.com/p/DNndMMEhtia/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
-    target="_blank" class="hover:text-blue-200">Budaya Kerja BPPMDDT Ambon ARIKA Akuntabel Responsif Integritas Kekeluargaan Asri
-  </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  </marquee>
+<div class="relative z-10 w-full mt-6 overflow-hidden">
+  <div class="animate-marquee whitespace-nowrap flex gap-10 text-gray-200 font-medium py-1.5">
+    <a href="https://www.instagram.com/p/DOm6VBPASaL/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+    class="hover:text-blue-200 transition">📢 Pengumuman: Pendaftaran Pendampingan Online PAPARISA telah dibuka, klik di sini untuk info lengkap!</a>
+    <a href="https://www.instagram.com/p/DNk-dn_BLQS/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+    class="hover:text-blue-200 transition">📢 Bantu Katong Wujudkan Zona Integritas Wilayah Bebas Korupsi</a>
+    <a href="https://www.instagram.com/p/DNndMMEhtia/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+    class="hover:text-blue-200 transition">📢 Budaya Kerja BPPMDDT Ambon ARIKA Akuntabel Responsif Integritas Kekeluargaan Asri</a>
+  </div>
 </div>
+
+<style>
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+</style>
 
 </section>
 
@@ -1539,6 +1544,7 @@ els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
 
 
 </html>
+
 
 
 
