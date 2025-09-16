@@ -1552,7 +1552,32 @@ els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
   </div>
 </section>
 
+<!-- Tombol Back to Top -->
+<a href="#beranda" id="backToTop"
+   class="fixed bottom-6 right-6 w-12 h-12 bg-blue-100 text-gray-800 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-opacity opacity-0 z-50">
+   ↑
+</a>
 
+<script>
+const backToTop = document.getElementById("backToTop");
+
+// Muncul saat scroll lebih dari 200px
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 200) {
+    backToTop.classList.remove("opacity-0");
+    backToTop.classList.add("opacity-100");
+  } else {
+    backToTop.classList.add("opacity-0");
+    backToTop.classList.remove("opacity-100");
+  }
+});
+
+// Smooth scroll saat diklik
+backToTop.addEventListener("click", (e) => {
+  e.preventDefault();
+  document.querySelector("#beranda").scrollIntoView({ behavior: "smooth" });
+});
+</script>
 
 
 
@@ -1580,6 +1605,7 @@ els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
 
 
 </html>
+
 
 
 
