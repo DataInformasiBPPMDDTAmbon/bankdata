@@ -271,8 +271,8 @@ document.querySelectorAll('a[href^="#data"]').forEach(anchor => {
 
 
 <!-- Lokus Pelatihan & Pendampingan -->
-<section id="lokus" class="py-16 bg-gradient-to-b from-gray-50 via-green-100 to-green-200">
-  <div class="container mx-auto text-center mb-10">
+<section id="lokus" class="py-16 bg-gradient-to-b from-purple-100 via-blue-50 to-green-100 px-4">
+  <div class="max-w-6xl mx-auto text-center mb-10">
     <h2 class="text-3xl font-bold text-gray-800 mb-3">Lokus Pelatihan & Pendampingan</h2>
     <p class="text-gray-600 max-w-2xl mx-auto">
       Peta berikut menunjukkan lokasi kegiatan yang telah dilaksanakan.  
@@ -281,10 +281,12 @@ document.querySelectorAll('a[href^="#data"]').forEach(anchor => {
   </div>
 
   <!-- Lokus Pelatihan -->
-  <div class="container mx-auto mb-12">
-    <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">📍 Lokus Pelatihan</h3>
-    <div class="bg-white rounded-xl shadow-md p-3 flex justify-center hover:shadow-lg transition-shadow duration-300">
-      <div class="w-full max-w-5xl aspect-video rounded-lg overflow-hidden">
+  <div class="max-w-5xl mx-auto mb-12">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+      📍 Lokus Pelatihan
+    </h3>
+    <div class="bg-white rounded-xl shadow-md p-3 flex justify-center hover:shadow-lg transition w-full">
+      <div class="w-full aspect-video rounded-lg overflow-hidden">
         <iframe
           src="https://www.google.com/maps/d/u/5/embed?mid=1CsbnHKJPMkr5_k6WN5i3RZRAfr-sF1A&ehbc=2E312F"
           class="w-full h-full"
@@ -297,30 +299,35 @@ document.querySelectorAll('a[href^="#data"]').forEach(anchor => {
 
     <!-- Legend Pelatihan -->
     <div class="mt-6 flex flex-wrap justify-center gap-4 md:gap-6">
-      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+      <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-lg shadow">
         <span class="w-5 h-5 bg-gray-400 rounded-full"></span>
         <span class="text-gray-700 text-sm md:text-base">Perencanaan Pembangunan Partisipatif</span>
       </div>
-      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+      <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-lg shadow">
         <span class="w-5 h-5 bg-green-500 rounded-full"></span>
         <span class="text-gray-700 text-sm md:text-base">Pengelolaan BUMDes</span>
       </div>
-      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+      <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-lg shadow">
         <span class="w-5 h-5 bg-red-500 rounded-full"></span>
         <span class="text-gray-700 text-sm md:text-base">Desa Wisata</span>
       </div>
-      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+      <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-lg shadow">
         <span class="w-5 h-5 bg-blue-500 rounded-full"></span>
         <span class="text-gray-700 text-sm md:text-base">Kemaritiman</span>
       </div>
     </div>
   </div>
 
+  <!-- Divider -->
+  <div class="max-w-3xl mx-auto border-t border-gray-300 my-10"></div>
+
   <!-- Lokus Pendampingan -->
-  <div class="container mx-auto mb-12">
-    <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">🤝 Lokus Pendampingan</h3>
-    <div class="bg-white rounded-xl shadow-md p-3 flex justify-center hover:shadow-lg transition-shadow duration-300">
-      <div class="w-full max-w-5xl aspect-video rounded-lg overflow-hidden">
+  <div class="max-w-5xl mx-auto mb-12">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+      🤝 Lokus Pendampingan
+    </h3>
+    <div class="bg-white rounded-xl shadow-md p-3 flex justify-center hover:shadow-lg transition w-full">
+      <div class="w-full aspect-video rounded-lg overflow-hidden">
         <iframe
           src="https://www.google.com/maps/d/u/5/embed?mid=1PuVFAlHLnOWP5T73FmTys6dVbBvUuYE&ehbc=2E312F"
           class="w-full h-full"
@@ -333,57 +340,31 @@ document.querySelectorAll('a[href^="#data"]').forEach(anchor => {
 
     <!-- Legend Pendampingan -->
     <div class="mt-6 flex flex-wrap justify-center gap-4 md:gap-6">
-      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+      <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-lg shadow">
         <span class="w-5 h-5 bg-green-300 rounded-full"></span>
         <span class="text-gray-700 text-sm md:text-base">Pendampingan 2024</span>
       </div>
-      <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow">
+      <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-lg shadow">
         <span class="w-5 h-5 bg-blue-500 rounded-full"></span>
         <span class="text-gray-700 text-sm md:text-base">Pendampingan 2025</span>
       </div>
     </div>
   </div>
 
-<!-- Download Data -->
-<div class="container mx-auto text-center mt-12 flex flex-wrap justify-center gap-4">
-  <a href="https://docs.google.com/spreadsheets/d/1ccUujIVhGjVFLG-bsOLcKuYOZasD1NuyoM5Gt8wVfYQ/edit?usp=sharing" 
-     target="_blank" 
-     class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition">
-    📊 Unduh Lokus Pelatihan (Excel)
-  </a>
-  <a href="https://docs.google.com/spreadsheets/d/1vss4OWuarw4aMj_T1AaZph50zLshmeeW705WaiS28RQ/edit?usp=sharing" 
-     target="_blank" 
-     class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition">
-    📊 Unduh Lokus Pendampingan (Excel)
-  </a>
-</div>
-
-
-<script>
-  const btn = document.getElementById("downloadBtn");
-  const menu = document.getElementById("downloadMenu");
-  const iframes = document.querySelectorAll("#lokus iframe");
-
-  function disableIframeClicks(disable) {
-    iframes.forEach(iframe => {
-      iframe.style.pointerEvents = disable ? "none" : "auto";
-    });
-  }
-
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    menu.classList.toggle("hidden");
-    disableIframeClicks(!menu.classList.contains("hidden"));
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!btn.contains(e.target) && !menu.contains(e.target)) {
-      menu.classList.add("hidden");
-      disableIframeClicks(false);
-    }
-  });
-</script>
-
+  <!-- Download Data -->
+  <div class="max-w-5xl mx-auto text-center mt-12 flex flex-wrap justify-center gap-4">
+    <a href="https://docs.google.com/spreadsheets/d/1ccUujIVhGjVFLG-bsOLcKuYOZasD1NuyoM5Gt8wVfYQ/edit?usp=sharing" 
+       target="_blank" 
+       class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition">
+      📊 Unduh Lokus Pelatihan (Excel)
+    </a>
+    <a href="https://docs.google.com/spreadsheets/d/1vss4OWuarw4aMj_T1AaZph50zLshmeeW705WaiS28RQ/edit?usp=sharing" 
+       target="_blank" 
+       class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition">
+      📊 Unduh Lokus Pendampingan (Excel)
+    </a>
+  </div>
+</section>
 
 
 
@@ -1556,6 +1537,7 @@ els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
 
 
 </html>
+
 
 
 
