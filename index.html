@@ -1106,135 +1106,149 @@ els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
   <div class="container mx-auto text-center mb-12">
     <h2 class="text-3xl font-bold text-gray-800">Publikasi Survey</h2>
     <p class="text-gray-700 mt-3 max-w-2xl mx-auto">
-      Hasil survey Persepsi Anti Korupsi & Kepuasan Pelayanan.
+      Hasil survey Persepsi Anti Korupsi & Kepuasan Pelayanan
     </p>
   </div>
 
   <div class="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Survey Anti Korupsi -->
-    <div class="bg-white rounded-xl shadow-md p-6"
-         x-data="{ mode: 'chart', data: [] }"
-         x-init="
-           Papa.parse('LINK_CSV_SPAK', {
-             download: true, header: true, skipEmptyLines: true,
-             complete: res => { data = res.data }
-           })
-         ">
+
+    <!-- SPAK -->
+    <div class="bg-white rounded-xl shadow-md p-6" x-data="surveyModule('https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=9369613&single=true&output=csv')">
       <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Survey Persepsi Anti Korupsi</h3>
 
-      <!-- Toggle -->
-      <div class="flex justify-center gap-2 mb-4">
-        <button @click='mode="chart"'
-                :class="mode==='chart' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
-                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
-          📊 Grafik
-        </button>
-        <button @click='mode="table"'
-                :class="mode==='table' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
-                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
-          📋 Tabel
-        </button>
+      <div class="flex flex-wrap justify-center gap-2 mb-4">
+        <select x-model="tahun" class="px-3 py-1 rounded-lg border">
+          <option value="">Semua Tahun</option>
+          <template x-for="y in years" :key="y"><option :value="y" x-text="y"></option></template>
+        </select>
+        <select x-model="triwulan" class="px-3 py-1 rounded-lg border">
+          <option value="">Semua Triwulan</option>
+          <template x-for="q in quarters" :key="q"><option :value="q" x-text="q"></option></template>
+        </select>
       </div>
 
-      <!-- Grafik -->
-      <div x-show="mode==='chart'" x-transition>
-        <iframe src="LINK_CHART_SPAK"
-                class="w-full h-64 rounded-lg shadow border"></iframe>
+      <div class="mb-4">
+        <canvas x-ref="chart" class="rounded-lg shadow border"></canvas>
       </div>
 
-      <!-- Tabel -->
-      <div x-show="mode==='table'" x-transition class="overflow-x-auto">
+      <div class="overflow-x-auto">
         <table class="w-full border text-sm mt-2">
-          <thead class="bg-gray-200">
+          <thead class="bg-green-200">
             <tr>
-              <th class="border p-2">Tahun</th>
-              <th class="border p-2">Triwulan</th>
+              <th class="border p-2">Pertanyaan</th>
               <th class="border p-2">Nilai</th>
             </tr>
           </thead>
           <tbody>
-            <template x-for="row in data" :key="row.Tahun+row.Triwulan">
-              <tr class="odd:bg-gray-50">
-                <td class="border p-2" x-text="row.Tahun"></td>
-                <td class="border p-2" x-text="row.Triwulan"></td>
+            <template x-for="row in filteredData()" :key="row.Pertanyaan">
+              <tr class="odd:bg-green-50">
+                <td class="border p-2" x-text="row.Pertanyaan"></td>
                 <td class="border p-2" x-text="row.Nilai"></td>
               </tr>
             </template>
+            <tr x-show="filteredData().length===0">
+              <td class="border p-2 text-center" colspan="2">Data tidak tersedia</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Survey Kepuasan Pelayanan -->
-    <div class="bg-white rounded-xl shadow-md p-6"
-         x-data="{ mode: 'chart', data: [] }"
-         x-init="
-           Papa.parse('LINK_CSV_SKP', {
-             download: true, header: true, skipEmptyLines: true,
-             complete: res => { data = res.data }
-           })
-         ">
+    <!-- SPKP -->
+    <div class="bg-white rounded-xl shadow-md p-6" x-data="surveyModule('https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=863623044&single=true&output=csv')">
       <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Survey Kepuasan Pelayanan</h3>
 
-      <!-- Toggle -->
-      <div class="flex justify-center gap-2 mb-4">
-        <button @click='mode="chart"'
-                :class="mode==='chart' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
-                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
-          📊 Grafik
-        </button>
-        <button @click='mode="table"'
-                :class="mode==='table' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'"
-                class="px-4 py-2 rounded-lg text-sm font-medium transition hover:scale-105">
-          📋 Tabel
-        </button>
+      <div class="flex flex-wrap justify-center gap-2 mb-4">
+        <select x-model="tahun" class="px-3 py-1 rounded-lg border">
+          <option value="">Semua Tahun</option>
+          <template x-for="y in years" :key="y"><option :value="y" x-text="y"></option></template>
+        </select>
+        <select x-model="triwulan" class="px-3 py-1 rounded-lg border">
+          <option value="">Semua Triwulan</option>
+          <template x-for="q in quarters" :key="q"><option :value="q" x-text="q"></option></template>
+        </select>
       </div>
 
-      <!-- Grafik -->
-      <div x-show="mode==='chart'" x-transition>
-        <iframe src="LINK_CHART_SKP"
-                class="w-full h-64 rounded-lg shadow border"></iframe>
+      <div class="mb-4">
+        <canvas x-ref="chart" class="rounded-lg shadow border"></canvas>
       </div>
 
-      <!-- Tabel -->
-      <div x-show="mode==='table'" x-transition class="overflow-x-auto">
+      <div class="overflow-x-auto">
         <table class="w-full border text-sm mt-2">
-          <thead class="bg-gray-200">
+          <thead class="bg-blue-200">
             <tr>
-              <th class="border p-2">Tahun</th>
-              <th class="border p-2">Triwulan</th>
+              <th class="border p-2">Pertanyaan</th>
               <th class="border p-2">Nilai</th>
             </tr>
           </thead>
           <tbody>
-            <template x-for="row in data" :key="row.Tahun+row.Triwulan">
-              <tr class="odd:bg-gray-50">
-                <td class="border p-2" x-text="row.Tahun"></td>
-                <td class="border p-2" x-text="row.Triwulan"></td>
+            <template x-for="row in filteredData()" :key="row.Pertanyaan">
+              <tr class="odd:bg-blue-50">
+                <td class="border p-2" x-text="row.Pertanyaan"></td>
                 <td class="border p-2" x-text="row.Nilai"></td>
               </tr>
             </template>
+            <tr x-show="filteredData().length===0">
+              <td class="border p-2 text-center" colspan="2">Data tidak tersedia</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
-  </div>
-
-  <!-- QR Code -->
-  <div class="flex flex-col items-center mt-8">
-    <div class="bg-white p-4 rounded-xl shadow">
-      <img src="img/qrsurvey.jpeg" alt="QR Code Survey" class="w-32 h-32 mb-2">
-    </div>
-    <a href="https://bit.ly/SPKP-SPAK-AMQ" target="_blank"
-       class="text-blue-600 font-medium hover:underline mt-2">
-      Isi Survey Disini
-    </a>
   </div>
 </section>
 
-<!-- Alpine.js & PapaParse -->
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+function surveyModule(csvUrl){
+  return {
+    data: [],
+    tahun: '',
+    triwulan: '',
+    years: [2025,2024,2023],
+    quarters: ['I','II','III','IV'],
+    chartInstance: null,
+    init(){
+      Papa.parse(csvUrl, {
+        download:true,
+        header:true,
+        skipEmptyLines:true,
+        complete: (res)=>{
+          this.data = res.data.map(r=>({
+            Tahun: r.Tahun,
+            Triwulan: r.Triwulan,
+            Pertanyaan: r.Pertanyaan,
+            Nilai: parseFloat(r.Nilai)
+          }));
+          this.renderChart();
+        }
+      });
+    },
+    filteredData(){
+      return this.data.filter(r=>(!this.tahun||r.Tahun==this.tahun)&&(!this.triwulan||r.Triwulan==this.triwulan));
+    },
+    renderChart(){
+      this.$nextTick(()=>{
+        if(this.chartInstance) this.chartInstance.destroy();
+        const fd = this.filteredData();
+        const labels = fd.length ? fd.map(r=>r.Pertanyaan) : ['Data tidak tersedia'];
+        const values = fd.length ? fd.map(r=>r.Nilai) : [0];
+        const ctx = this.$refs.chart.getContext('2d');
+        this.chartInstance = new Chart(ctx,{
+          type:'bar',
+          data:{labels,datasets:[{label:'Nilai',data:values,backgroundColor:'#a7f3d0'}]},
+          options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}}}
+        });
+      });
+    },
+    $watch:{tahun(){ this.renderChart(); }, triwulan(){ this.renderChart(); }}
+  }
+}
+
+</script>
 
 
 
@@ -1694,6 +1708,7 @@ backToTop.addEventListener("click", (e) => {
 
 
 </html>
+
 
 
 
