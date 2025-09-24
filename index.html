@@ -1139,7 +1139,7 @@ submitBtn.addEventListener("click", () => {
 
 
 
-<!-- DATABASE INTERNAL (Versi Lengkap) -->
+<!-- DATABASE INTERNAL -->
 <section id="data" class="py-16 bg-gradient-to-b from-purple-50 via-blue-50 to-blue-100">
   <div class="container mx-auto text-center mb-8 px-4">
     <h2 class="text-3xl font-bold text-gray-800">Database Internal</h2>
@@ -1150,9 +1150,8 @@ submitBtn.addEventListener("click", () => {
 
   <div class="container mx-auto max-w-4xl bg-white/90 backdrop-blur rounded-2xl shadow p-6 md:p-8">
 
-    <!-- Controls: Search + Filters -->
+    <!-- Controls -->
     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-end mb-5">
-      <!-- Search -->
       <div class="md:col-span-6">
         <label for="dbSearchInput" class="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
         <div class="relative">
@@ -1161,24 +1160,18 @@ submitBtn.addEventListener("click", () => {
                  class="w-full pl-10 pr-3 py-2 rounded-lg border focus:ring focus:ring-blue-200" />
         </div>
       </div>
-
-      <!-- Kategori -->
       <div class="md:col-span-3">
         <label for="filterKategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
         <select id="filterKategori" class="w-full px-3 py-2 rounded-lg border focus:ring focus:ring-blue-200">
           <option value="">Semua</option>
         </select>
       </div>
-
-      <!-- Tim Kerja -->
       <div class="md:col-span-3">
         <label for="filterTim" class="block text-sm font-medium text-gray-700 mb-1">Tim Kerja</label>
         <select id="filterTim" class="w-full px-3 py-2 rounded-lg border focus:ring focus:ring-blue-200">
           <option value="">Semua</option>
         </select>
       </div>
-
-      <!-- Sort -->
       <div class="md:col-span-3">
         <label for="sortSelect" class="block text-sm font-medium text-gray-700 mb-1">Urutkan</label>
         <select id="sortSelect" class="w-full px-3 py-2 rounded-lg border focus:ring focus:ring-blue-200">
@@ -1186,8 +1179,6 @@ submitBtn.addEventListener("click", () => {
           <option value="za">Nama Z–A</option>
         </select>
       </div>
-
-      <!-- Info Count -->
       <div class="md:col-span-9 text-sm text-gray-600 md:text-right">
         <span id="resultInfo" class="inline-block mt-2 md:mt-0">Menampilkan 0–0 dari 0 file</span>
       </div>
@@ -1197,16 +1188,13 @@ submitBtn.addEventListener("click", () => {
     <div id="loadingState" class="flex items-center justify-center py-10">
       <div class="animate-pulse text-gray-500">Memuat data…</div>
     </div>
-
     <ul id="databaseList" class="hidden text-left space-y-3"></ul>
-
     <div id="emptyState" class="hidden text-center py-10">
       <div class="text-4xl mb-2">🗂️</div>
       <p class="text-gray-700 font-medium">Data tidak ditemukan</p>
       <p class="text-gray-500 text-sm">Coba ubah kata kunci atau filter ya.</p>
     </div>
 
-    <!-- Pagination -->
     <div id="pagination" class="mt-6 flex flex-wrap justify-center gap-2"></div>
   </div>
 </section>
@@ -1231,273 +1219,220 @@ submitBtn.addEventListener("click", () => {
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-/* ================== CONFIG ================== */
-const databaseCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=1383698020&single=true&output=csv';
-const ITEMS_PER_PAGE = 10;
-const correctPassword = 'bppmdt2025'; // ganti sewaktu-waktu
+(function(){
+  const databaseCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFzkbPnx7LsUWsLLAEbSIHCht1CkRoc84fNZN8CQ8afqkC3tclkeKzN7B_YsGfJF7zMqP5ZYhL0Wq5/pub?gid=1383698020&single=true&output=csv';
+  const ITEMS_PER_PAGE = 10;
+  const correctPassword = 'bppmd2025';
 
-// Harap header di Sheet: Nama File, Link, Kategori, Tim Kerja, Keterangan, Tipe, Protected
-/* ============================================ */
-
-const els = {
-  list: document.getElementById('databaseList'),
-  pagination: document.getElementById('pagination'),
-  input: document.getElementById('dbSearchInput'),
-  filterKategori: document.getElementById('filterKategori'),
-  filterTim: document.getElementById('filterTim'),
-  sort: document.getElementById('sortSelect'),
-  resultInfo: document.getElementById('resultInfo'),
-  loading: document.getElementById('loadingState'),
-  empty: document.getElementById('emptyState'),
-  modal: document.getElementById('passwordModal'),
-  docPassword: document.getElementById('docPassword'),
-  passwordError: document.getElementById('passwordError'),
-};
-
-let allData = [];
-let filteredData = [];
-let currentPage = 1;
-let currentProtectedLink = '';
-
-/* =============== UTILITIES =============== */
-function escapeHTML(str='') {
-  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-function highlight(text, query) {
-  if (!query) return escapeHTML(text || '');
-  const safe = escapeHTML(text || '');
-  const pattern = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
-  return safe.replace(pattern, '<mark class="bg-yellow-200">$1</mark>');
-}
-
-function fileTypeIcon(type='') {
-  const t = (type || '').toLowerCase();
-  if (t.includes('pdf')) return '📕';
-  if (t.includes('xls') || t.includes('spreadsheet') || t.includes('excel')) return '📗';
-  if (t.includes('doc')) return '📘';
-  if (t.includes('ppt')) return '📙';
-  if (t.includes('zip') || t.includes('rar')) return '🗜️';
-  if (t.includes('csv')) return '🧾';
-  if (t.includes('img') || t.includes('jpg') || t.includes('png')) return '🖼️';
-  return '📄';
-}
-
-function updateResultInfo(total, page, perPage) {
-  const start = total === 0 ? 0 : (page - 1) * perPage + 1;
-  const end = Math.min(page * perPage, total);
-  els.resultInfo.textContent = `Menampilkan ${start}–${end} dari ${total} file`;
-}
-
-/* ============== MODAL PASSWORD ============== */
-function openModal(link) {
-  currentProtectedLink = link;
-  els.modal.classList.remove('hidden');
-  els.modal.classList.add('flex');
-  els.docPassword.value = '';
-  els.passwordError.classList.add('hidden');
-  setTimeout(() => els.docPassword.focus(), 50);
-}
-function closeModal() {
-  els.modal.classList.add('hidden');
-  els.modal.classList.remove('flex');
-  els.passwordError.classList.add('hidden');
-  els.docPassword.value = '';
-}
-function checkPassword() {
-  if (els.docPassword.value === correctPassword) {
-    window.open(currentProtectedLink, '_blank');
-    closeModal();
-  } else {
-    els.passwordError.classList.remove('hidden');
-  }
-}
-// Close modal on ESC and backdrop click
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !els.modal.classList.contains('hidden')) closeModal();
-});
-els.modal.addEventListener('click', (e) => {
-  if (e.target === els.modal) closeModal();
-});
-
-/* ============== RENDER CORE ============== */
-function renderPage(page) {
-  const start = (page - 1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  const pageData = filteredData.slice(start, end);
-
-  els.list.innerHTML = '';
-  pageData.forEach(item => {
-    if (!item['Nama File'] || !item['Link']) return;
-
-    const nama = item['Nama File'] || '';
-    const kategori = item['Kategori'] || '';
-    const tim = item['Tim Kerja'] || '';
-    const ket = item['Keterangan'] || '';
-    const tipe = item['Tipe'] || '';
-    const isProtected = (item['Protected'] || '').toString().toLowerCase() === 'ya';
-    const link = item['Link'];
-
-    const li = document.createElement('li');
-    li.className = "p-4 rounded-xl border bg-white hover:shadow-sm transition";
-
-    li.innerHTML = `
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div class="min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-lg font-semibold text-gray-800 leading-tight">
-              ${highlight(nama, (els.input.value || '').trim())}
-            </span>
-            ${kategori ? `<span class="px-2 py-0.5 text-xs rounded-full bg-pink-100 text-pink-700">${escapeHTML(kategori)}</span>` : ''}
-            ${tim ? `<span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">${escapeHTML(tim)}</span>` : ''}
-            ${tipe ? `<span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700">${fileTypeIcon(tipe)} ${escapeHTML(tipe)}</span>` : ''}
-          </div>
-          ${ket ? `<p class="text-sm text-gray-600 mt-1 line-clamp-2">${highlight(ket, (els.input.value || '').trim())}</p>` : ''}
-        </div>
-
-        <div class="shrink-0">
-          ${
-            isProtected
-            ? `<button type="button" class="px-3 py-1.5 rounded-full bg-red-400 hover:bg-red-500 text-white text-sm font-medium">
-                 🔒 Lihat Dokumen
-               </button>`
-            : `<a href="${escapeHTML(link)}" target="_blank" rel="noopener"
-                 class="inline-block px-3 py-1.5 rounded-full bg-green-400 hover:bg-green-500 text-white text-sm font-medium">
-                 📂 Lihat Dokumen
-               </a>`
-          }
-        </div>
-      </div>
-    `;
-
-    // Attach handler if protected
-    if (isProtected) {
-      li.querySelector('button').addEventListener('click', () => openModal(link));
-    }
-
-    els.list.appendChild(li);
-  });
-
-  updateResultInfo(filteredData.length, currentPage, ITEMS_PER_PAGE);
-}
-
-function renderPagination() {
-  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
-  els.pagination.innerHTML = '';
-
-  const btnBase = "px-3 py-1 rounded border";
-  const addBtn = (label, disabled, onClick, extra='') => {
-    const b = document.createElement('button');
-    b.textContent = label;
-    b.disabled = disabled;
-    b.className = `${btnBase} ${disabled ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-100'} ${extra}`;
-    if (!disabled) b.addEventListener('click', onClick);
-    els.pagination.appendChild(b);
+  const els = {
+    list: document.getElementById('databaseList'),
+    pagination: document.getElementById('pagination'),
+    input: document.getElementById('dbSearchInput'),
+    filterKategori: document.getElementById('filterKategori'),
+    filterTim: document.getElementById('filterTim'),
+    sort: document.getElementById('sortSelect'),
+    resultInfo: document.getElementById('resultInfo'),
+    loading: document.getElementById('loadingState'),
+    empty: document.getElementById('emptyState'),
+    modal: document.getElementById('passwordModal'),
+    docPassword: document.getElementById('docPassword'),
+    passwordError: document.getElementById('passwordError'),
   };
 
-  addBtn('Prev', currentPage === 1, () => { currentPage--; renderPage(currentPage); renderPagination(); });
+  let allData = [];
+  let filteredData = [];
+  let currentPage = 1;
+  let currentProtectedLink = '';
 
-  for (let i = 1; i <= totalPages; i++) {
-    const extra = i === currentPage ? 'bg-blue-600 text-white border-blue-600' : '';
-    addBtn(String(i), false, () => { currentPage = i; renderPage(currentPage); renderPagination(); }, extra);
+  function escapeHTML(str='') {
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
 
-  addBtn('Next', currentPage === totalPages, () => { currentPage++; renderPage(currentPage); renderPagination(); });
-}
-
-function applyFiltersAndSort(query='') {
-  const q = (query || '').toLowerCase().trim();
-  const fKategori = els.filterKategori.value;
-  const fTim = els.filterTim.value;
-  const sortMode = els.sort.value;
-
-  // filter
-  filteredData = allData.filter(row => {
-    const nama = (row['Nama File'] || '').toLowerCase();
-    const ket  = (row['Keterangan'] || '').toLowerCase();
-    const kat  = (row['Kategori'] || '');
-    const tim  = (row['Tim Kerja'] || '');
-    const matchQuery = q ? (nama.includes(q) || ket.includes(q)) : true;
-    const matchKat = fKategori ? (kat === fKategori) : true;
-    const matchTim = fTim ? (tim === fTim) : true;
-    return matchQuery && matchKat && matchTim;
-  });
-
-  // sort
-  filteredData.sort((a, b) => {
-    const A = (a['Nama File'] || '').toLowerCase();
-    const B = (b['Nama File'] || '').toLowerCase();
-    if (sortMode === 'za') return A < B ? 1 : (A > B ? -1 : 0);
-    return A < B ? -1 : (A > B ? 1 : 0); // default A–Z
-  });
-
-  // state switching
-  els.loading.classList.add('hidden');
-  if (filteredData.length === 0) {
-    els.list.classList.add('hidden');
-    els.empty.classList.remove('hidden');
-    updateResultInfo(0, 1, ITEMS_PER_PAGE);
-    els.pagination.innerHTML = '';
-    return;
-  } else {
-    els.empty.classList.add('hidden');
-    els.list.classList.remove('hidden');
+  function highlight(text, query) {
+    if (!query) return escapeHTML(text || '');
+    const safe = escapeHTML(text || '');
+    const pattern = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+    return safe.replace(pattern, '<mark class="bg-yellow-200">$1</mark>');
   }
 
-  currentPage = 1;
-  renderPage(currentPage);
-  renderPagination();
-}
+  function fileTypeIcon(type='') {
+    const t = (type || '').toLowerCase();
+    if (t.includes('pdf')) return '📕';
+    if (t.includes('xls') || t.includes('spreadsheet') || t.includes('excel')) return '📗';
+    if (t.includes('doc')) return '📘';
+    if (t.includes('ppt')) return '📙';
+    if (t.includes('zip') || t.includes('rar')) return '🗜️';
+    if (t.includes('csv')) return '🧾';
+    if (t.includes('img') || t.includes('jpg') || t.includes('png')) return '🖼️';
+    return '📄';
+  }
 
-/* ============== FETCH & INIT ============== */
-Papa.parse(databaseCSV, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: function(results) {
-    // keep rows with required fields
-    allData = results.data.filter(row => row['Nama File'] && row['Link']);
+  function updateResultInfo(total, page, perPage) {
+    const start = total === 0 ? 0 : (page - 1) * perPage + 1;
+    const end = Math.min(page * perPage, total);
+    els.resultInfo.textContent = `Menampilkan ${start}–${end} dari ${total} file`;
+  }
 
-    // Build distinct filters
-    const setKategori = new Set(), setTim = new Set();
-    allData.forEach(r => {
-      if (r['Kategori']) setKategori.add(r['Kategori']);
-      if (r['Tim Kerja']) setTim.add(r['Tim Kerja']);
-    });
+  function openModal(link) {
+    currentProtectedLink = link;
+    els.modal.classList.remove('hidden');
+    els.modal.classList.add('flex');
+    els.docPassword.value = '';
+    els.passwordError.classList.add('hidden');
+    setTimeout(() => els.docPassword.focus(), 50);
+  }
 
-    // Populate dropdowns
-    [...setKategori].sort().forEach(k => {
-      const o = document.createElement('option'); o.value = k; o.textContent = k;
-      els.filterKategori.appendChild(o);
-    });
-    [...setTim].sort().forEach(t => {
-      const o = document.createElement('option'); o.value = t; o.textContent = t;
-      els.filterTim.appendChild(o);
-    });
+  function closeModal() {
+    els.modal.classList.add('hidden');
+    els.modal.classList.remove('flex');
+    els.passwordError.classList.add('hidden');
+    els.docPassword.value = '';
+  }
 
-    // Initial query from URL/localStorage (optional)
-    let query = '';
-    const stored = localStorage.getItem('dbSearchQuery');
-    if (stored) { query = stored; localStorage.removeItem('dbSearchQuery'); }
-    else {
-      const urlParams = new URLSearchParams(window.location.search);
-      query = urlParams.get('search') || '';
+  function checkPassword() {
+    if (els.docPassword.value === correctPassword) {
+      window.open(currentProtectedLink, '_blank');
+      closeModal();
+    } else {
+      els.passwordError.classList.remove('hidden');
     }
-    els.input.value = query;
-
-    applyFiltersAndSort(query);
-  },
-  error: function(err) {
-    els.loading.innerHTML = '<span class="text-red-500">Gagal memuat data.</span>';
-    console.error(err);
   }
-});
 
-/* ============== EVENT LISTENERS ============== */
-els.input.addEventListener('input', () => applyFiltersAndSort(els.input.value));
-els.filterKategori.addEventListener('change', () => applyFiltersAndSort(els.input.value));
-els.filterTim.addEventListener('change', () => applyFiltersAndSort(els.input.value));
-els.sort.addEventListener('change', () => applyFiltersAndSort(els.input.value));
+  document.addEventListener('keydown', (e) => { if(e.key==='Escape' && !els.modal.classList.contains('hidden')) closeModal(); });
+  els.modal.addEventListener('click', (e) => { if(e.target === els.modal) closeModal(); });
+
+  function renderPage(page) {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const pageData = filteredData.slice(start, end);
+
+    els.list.innerHTML = '';
+    pageData.forEach(item => {
+      if (!item['Nama File'] || !item['Link']) return;
+
+      const nama = item['Nama File'];
+      const kategori = item['Kategori'] || '';
+      const tim = item['Tim Kerja'] || '';
+      const ket = item['Keterangan'] || '';
+      const tipe = item['Tipe'] || '';
+      const isProtected = (item['Protected'] || '').toLowerCase() === 'ya';
+      const link = item['Link'];
+
+      const li = document.createElement('li');
+      li.className = "p-4 rounded-xl border bg-white hover:shadow-sm transition";
+      li.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-lg font-semibold text-gray-800 leading-tight">${highlight(nama, els.input.value)}</span>
+              ${kategori ? `<span class="px-2 py-0.5 text-xs rounded-full bg-pink-100 text-pink-700">${escapeHTML(kategori)}</span>` : ''}
+              ${tim ? `<span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">${escapeHTML(tim)}</span>` : ''}
+              ${tipe ? `<span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700">${fileTypeIcon(tipe)} ${escapeHTML(tipe)}</span>` : ''}
+            </div>
+            ${ket ? `<p class="text-sm text-gray-600 mt-1 line-clamp-2">${highlight(ket, els.input.value)}</p>` : ''}
+          </div>
+          <div class="shrink-0">
+            ${isProtected ? 
+              `<button class="px-3 py-1.5 rounded-full bg-red-400 hover:bg-red-500 text-white text-sm font-medium">🔒 Lihat Dokumen</button>` : 
+              `<a href="${escapeHTML(link)}" target="_blank" class="inline-block px-3 py-1.5 rounded-full bg-green-400 hover:bg-green-500 text-white text-sm font-medium">📂 Lihat Dokumen</a>`}
+          </div>
+        </div>`;
+      if (isProtected) li.querySelector('button').addEventListener('click', () => openModal(link));
+      els.list.appendChild(li);
+    });
+
+    updateResultInfo(filteredData.length, currentPage, ITEMS_PER_PAGE);
+  }
+
+  function renderPagination() {
+    const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
+    els.pagination.innerHTML = '';
+    const btnBase = "px-3 py-1 rounded border";
+    const addBtn = (label, disabled, onClick, extra='') => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.disabled = disabled;
+      b.className = `${btnBase} ${disabled ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-100'} ${extra}`;
+      if (!disabled) b.addEventListener('click', onClick);
+      els.pagination.appendChild(b);
+    };
+
+    addBtn('Prev', currentPage===1, ()=>{currentPage--; renderPage(currentPage); renderPagination();});
+    for(let i=1;i<=totalPages;i++){
+      const extra = i===currentPage?'bg-blue-600 text-white border-blue-600':'';
+      addBtn(String(i), false, ()=>{currentPage=i; renderPage(currentPage); renderPagination();}, extra);
+    }
+    addBtn('Next', currentPage===totalPages, ()=>{currentPage++; renderPage(currentPage); renderPagination();});
+  }
+
+  function applyFiltersAndSort(query='') {
+    const q = (query||'').toLowerCase().trim();
+    const fKategori = els.filterKategori.value;
+    const fTim = els.filterTim.value;
+    const sortMode = els.sort.value;
+
+    filteredData = allData.filter(row => {
+      const nama = (row['Nama File']||'').toLowerCase();
+      const ket = (row['Keterangan']||'').toLowerCase();
+      const kat = row['Kategori']||'';
+      const tim = row['Tim Kerja']||'';
+      const matchQuery = q ? (nama.includes(q)||ket.includes(q)) : true;
+      const matchKat = fKategori ? kat===fKategori : true;
+      const matchTim = fTim ? tim===fTim : true;
+      return matchQuery && matchKat && matchTim;
+    });
+
+    filteredData.sort((a,b)=>{
+      const A=(a['Nama File']||'').toLowerCase();
+      const B=(b['Nama File']||'').toLowerCase();
+      if(sortMode==='za') return A<B?1:(A>B?-1:0);
+      return A<B?-1:(A>B?1:0);
+    });
+
+    els.loading.classList.add('hidden');
+    if(filteredData.length===0){
+      els.list.classList.add('hidden');
+      els.empty.classList.remove('hidden');
+      updateResultInfo(0,1,ITEMS_PER_PAGE);
+      els.pagination.innerHTML='';
+      return;
+    } else {
+      els.empty.classList.add('hidden');
+      els.list.classList.remove('hidden');
+    }
+
+    currentPage=1;
+    renderPage(currentPage);
+    renderPagination();
+  }
+
+  Papa.parse(databaseCSV,{
+    download:true,
+    header:true,
+    skipEmptyLines:true,
+    complete:function(results){
+      allData = results.data.filter(row=>row['Nama File']&&row['Link']);
+
+      const setKategori = new Set(), setTim = new Set();
+      allData.forEach(r=>{ if(r['Kategori']) setKategori.add(r['Kategori']); if(r['Tim Kerja']) setTim.add(r['Tim Kerja']); });
+
+      [...setKategori].sort().forEach(k=>{ const o=document.createElement('option'); o.value=k;o.textContent=k; els.filterKategori.appendChild(o); });
+      [...setTim].sort().forEach(t=>{ const o=document.createElement('option'); o.value=t;o.textContent=t; els.filterTim.appendChild(o); });
+
+      applyFiltersAndSort('');
+    },
+    error:function(err){
+      els.loading.innerHTML='<span class="text-red-500">Gagal memuat data.</span>';
+      console.error(err);
+    }
+  });
+
+  els.input.addEventListener('input', ()=>applyFiltersAndSort(els.input.value));
+  els.filterKategori.addEventListener('change', ()=>applyFiltersAndSort(els.input.value));
+  els.filterTim.addEventListener('change', ()=>applyFiltersAndSort(els.input.value));
+  els.sort.addEventListener('change', ()=>applyFiltersAndSort(els.input.value));
+
+})();
 </script>
 
 
@@ -2111,6 +2046,7 @@ backToTop.addEventListener("click", (e) => {
 
 
 </html>
+
 
 
 
